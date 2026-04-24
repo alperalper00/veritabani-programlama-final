@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Veritabanı Programlama — AÖF Final Hazırlık</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f14; --bg2: #13161e; --bg3: #1a1e2a; --card: #1e2330;
+  --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+  --text: #e8eaf0; --text2: #8b91a8; --text3: #5a6070;
+  --accent: #6c8fff; --accent2: #4a6de8; --green: #3ecf8e; --red: #f87171;
+  --amber: #fbbf24; --purple: #a78bfa; --teal: #2dd4bf;
+  --font: 'Sora', sans-serif; --mono: 'Space Mono', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+.light {
+  --bg: #f5f6fa; --bg2: #eceef5; --bg3: #e2e4ef; --card: #ffffff;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --text: #1a1e2a; --text2: #4a5168; --text3: #8b91a8;
+  --accent: #3a5ce8; --accent2: #2a4cd0; --green: #059669;
+  --red: #dc2626; --amber: #d97706; --purple: #7c3aed; --teal: #0d9488;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.3s,color 0.3s;}
+a{text-decoration:none;color:inherit;}
+.shell{display:flex;min-height:100vh;}
+.sidebar{width:260px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;transition:transform 0.3s;}
+.main{margin-left:260px;flex:1;min-height:100vh;}
+.sidebar-logo{padding:24px 20px 16px;border-bottom:1px solid var(--border);}
+.logo-badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:0.05em;color:var(--accent);background:rgba(108,143,255,0.1);border:1px solid rgba(108,143,255,0.25);padding:5px 10px;border-radius:20px;margin-bottom:10px;}
+.logo-title{font-size:15px;font-weight:700;color:var(--text);line-height:1.3;}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:3px;font-family:var(--mono);}
+.nav-section{padding:16px 12px 8px;}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:0.1em;color:var(--text3);text-transform:uppercase;padding:0 8px;margin-bottom:6px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;color:var(--text2);transition:all 0.15s;margin-bottom:2px;}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{background:rgba(108,143,255,0.12);color:var(--accent);font-weight:600;}
+.nav-icon{width:16px;height:16px;flex-shrink:0;opacity:0.7;}
+.nav-item.active .nav-icon{opacity:1;}
+.sidebar-footer{margin-top:auto;padding:16px;border-top:1px solid var(--border);}
+.theme-toggle{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:12px;color:var(--text2);width:100%;}
+.theme-toggle:hover{border-color:var(--border2);color:var(--text);}
+.page-header{padding:32px 32px 24px;border-bottom:1px solid var(--border);}
+.page-title{font-size:26px;font-weight:700;margin-bottom:4px;}
+.page-desc{font-size:13px;color:var(--text2);}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:border-color 0.15s;}
+.card:hover{border-color:var(--border2);}
+.grid{display:grid;gap:16px;}
+.g2{grid-template-columns:repeat(2,1fr);}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g4{grid-template-columns:repeat(4,1fr);}
+.stat{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;}
+.stat-val{font-size:28px;font-weight:700;font-family:var(--mono);}
+.stat-label{font-size:11px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:0.05em;}
+.stat-sub{font-size:12px;color:var(--text2);margin-top:4px;}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;font-family:var(--mono);}
+.badge-blue{background:rgba(108,143,255,0.12);color:var(--accent);border:1px solid rgba(108,143,255,0.2);}
+.badge-green{background:rgba(62,207,142,0.12);color:var(--green);border:1px solid rgba(62,207,142,0.2);}
+.badge-red{background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.2);}
+.badge-amber{background:rgba(251,191,36,0.12);color:var(--amber);border:1px solid rgba(251,191,36,0.2);}
+.badge-purple{background:rgba(167,139,250,0.12);color:var(--purple);border:1px solid rgba(167,139,250,0.2);}
+.badge-teal{background:rgba(45,212,191,0.12);color:var(--teal);border:1px solid rgba(45,212,191,0.2);}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all 0.15s;font-family:var(--font);}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:var(--accent2);}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2);}
+.btn-ghost:hover{background:var(--bg3);color:var(--text);}
+.btn-green{background:var(--green);color:#fff;}
+.btn-red{background:var(--red);color:#fff;}
+.btn-sm{padding:7px 14px;font-size:12px;}
+.page{display:none;padding:32px;}
+.page.active{display:block;}
+.progress-bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--accent);border-radius:3px;transition:width 0.4s;}
+.progress-fill.green{background:var(--green);}
+.progress-fill.red{background:var(--red);}
+.question-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px;}
+.q-num{font-size:11px;font-family:var(--mono);color:var(--text3);margin-bottom:8px;}
+.q-text{font-size:15px;line-height:1.7;color:var(--text);font-weight:500;margin-bottom:20px;}
+.q-options{display:flex;flex-direction:column;gap:8px;}
+.q-option{padding:12px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:13px;color:var(--text2);transition:all 0.15s;display:flex;align-items:center;gap:12px;}
+.q-option:hover{border-color:var(--accent);color:var(--text);background:rgba(108,143,255,0.05);}
+.q-option.selected{border-color:var(--accent);background:rgba(108,143,255,0.1);color:var(--text);}
+.q-option.correct{border-color:var(--green);background:rgba(62,207,142,0.1);color:var(--green);}
+.q-option.wrong{border-color:var(--red);background:rgba(248,113,113,0.1);color:var(--red);}
+.opt-letter{width:24px;height:24px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:var(--mono);flex-shrink:0;}
+.explanation-box{background:rgba(62,207,142,0.05);border:1px solid rgba(62,207,142,0.2);border-radius:var(--radius-sm);padding:16px;margin-top:12px;font-size:13px;color:var(--text2);line-height:1.7;}
+.explanation-box.wrong{background:rgba(248,113,113,0.05);border-color:rgba(248,113,113,0.2);}
+.exp-title{font-weight:700;color:var(--green);margin-bottom:6px;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;}
+.exp-title.wrong{color:var(--red);}
+.unit-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.unit-number{width:40px;height:40px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:16px;color:#fff;flex-shrink:0;}
+.topic-card{background:var(--bg3);border-left:3px solid var(--accent);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:14px 16px;margin-bottom:10px;}
+.topic-title{font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text);}
+.topic-items{list-style:none;padding:0;}
+.topic-items li{font-size:12px;color:var(--text2);padding:3px 0;line-height:1.6;display:flex;align-items:flex-start;gap:6px;}
+.topic-items li::before{content:"→";color:var(--accent);flex-shrink:0;margin-top:1px;}
+.sinav-notu{background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-top:8px;font-size:11px;color:var(--amber);display:flex;align-items:flex-start;gap:8px;}
+.sinav-notu::before{content:"★";flex-shrink:0;}
+.tabs{display:flex;gap:4px;background:var(--bg3);padding:4px;border-radius:var(--radius-sm);margin-bottom:24px;flex-wrap:wrap;}
+.tab{padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text3);transition:all 0.15s;}
+.tab.active{background:var(--card);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+.tab:hover:not(.active){color:var(--text2);}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+.timer-display{font-family:var(--mono);font-size:24px;font-weight:700;color:var(--accent);background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 20px;display:inline-block;}
+.timer-display.warning{color:var(--amber);}
+.timer-display.danger{color:var(--red);}
+.result-score{font-size:72px;font-weight:700;font-family:var(--mono);text-align:center;line-height:1;}
+.result-grade{font-size:20px;font-weight:600;text-align:center;margin-top:8px;}
+.flashcard{perspective:600px;height:180px;cursor:pointer;margin-bottom:16px;}
+.flashcard-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform 0.5s;}
+.flashcard.flipped .flashcard-inner{transform:rotateY(180deg);}
+.flashcard-front,.flashcard-back{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:var(--radius);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;}
+.flashcard-front{background:var(--card);}
+.flashcard-back{background:var(--bg3);transform:rotateY(180deg);}
+.fc-hint{font-size:10px;color:var(--text3);position:absolute;bottom:12px;right:14px;}
+.mob-nav-btn{display:none;position:fixed;top:16px;left:16px;z-index:200;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;cursor:pointer;}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99;}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;}
+  .mob-nav-btn{display:flex;}
+  .sidebar-overlay.show{display:block;}
+  .g4{grid-template-columns:repeat(2,1fr);}
+  .g3{grid-template-columns:1fr;}
+  .g2{grid-template-columns:1fr;}
+  .page{padding:24px 16px;}
+  .page-header{padding:64px 20px 20px;}
+}
+.heat-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.heat-bar{flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;}
+.heat-fill{height:100%;border-radius:4px;}
+.heat-count{font-family:var(--mono);font-size:12px;color:var(--text2);min-width:30px;text-align:right;}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--border2);}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0;}
+.tag{display:inline-flex;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;font-family:var(--mono);background:var(--bg3);color:var(--text3);border:1px solid var(--border);margin-right:4px;}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3);}
+.empty-icon{font-size:48px;margin-bottom:12px;}
+table.info-table{width:100%;border-collapse:collapse;font-size:11px;margin:8px 0;}
+table.info-table th{padding:6px 8px;border:1px solid var(--border);background:var(--bg3);text-align:left;font-weight:700;color:var(--text);}
+table.info-table td{padding:5px 8px;border:1px solid var(--border);color:var(--text2);}
+.cikmis-yil-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px 20px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:all 0.18s;text-align:center;}
+.cikmis-yil-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.18);}
+.cikmis-yil-icon{font-size:40px;line-height:1;}
+.cikmis-yil-title{font-size:22px;font-weight:800;color:var(--text);font-family:var(--mono);}
+.cikmis-yil-sub{font-size:13px;color:var(--text2);}
+.cikmis-yil-badge{padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;font-family:var(--mono);}
+@media(max-width:768px){.cikmis-yil-grid{grid-template-columns:1fr!important;}}
+</style>
+</head>
+<body>
+
+<button class="mob-nav-btn" onclick="toggleSidebar()" aria-label="Menü">
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+    <path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  </svg>
+</button>
+<div class="sidebar-overlay" onclick="toggleSidebar()" id="overlay"></div>
+
+<div class="shell">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-badge">AÖF · BAHAR 2025</div>
+    <div class="logo-title">Veritabanı Programlama</div>
+    <div class="logo-sub">Final Sınav Hazırlık Sistemi</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Ana Menü</div>
+    <div class="nav-item active" onclick="showPage('dashboard')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h5v5H2V2zm7 0h5v5H9V2zm-7 7h5v5H2V9zm7 0h5v5H9V9z"/></svg>
+      Genel Bakış
+    </div>
+    <div class="nav-item" onclick="showPage('analiz')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1 12h2V6H1v6zm3 0h2V2H4v10zm3 0h2V9H7v3zm3 0h2V4h-2v8zm3 0h2V7h-2v5z"/></svg>
+      Soru Analizi
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Konu Özetleri</div>
+    <div class="nav-item" onclick="showPage('unite5')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1zm1 3v1h8V5H4zm0 3v1h8V8H4zm0 3v1h5v-1H4z"/></svg>
+      Ünite 5 — Hareket & Eş Zamanlılık
+    </div>
+    <div class="nav-item" onclick="showPage('unite6')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1zm1 3v1h8V5H4zm0 3v1h8V8H4zm0 3v1h5v-1H4z"/></svg>
+      Ünite 6 — Güvenlik & Yetkilendirme
+    </div>
+    <div class="nav-item" onclick="showPage('unite7')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1zm1 3v1h8V5H4zm0 3v1h8V8H4zm0 3v1h5v-1H4z"/></svg>
+      Ünite 7 — Yedekleme & Felaket
+    </div>
+    <div class="nav-item" onclick="showPage('unite8')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1zm1 3v1h8V5H4zm0 3v1h8V8H4zm0 3v1h5v-1H4z"/></svg>
+      Ünite 8 — NoSQL & Bulut Bilişim
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Soru Sistemleri</div>
+    <div class="nav-item" onclick="showPage('cikmisSorular')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 3a1 1 0 110 2 1 1 0 010-2zm-1 4h2v4H7V8z"/></svg>
+      Çıkmış Sorular
+    </div>
+    <div class="nav-item" onclick="showPage('sinavModu')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm.5 10.5h-1v-5h1v5zm0-6.5h-1V4h1v1z"/></svg>
+      Sınav Modu
+    </div>
+    <div class="nav-item" onclick="showPage('tahmini')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M2 4l6-3 6 3v5c0 3-6 6-6 6S2 12 2 9V4z"/></svg>
+      Tahmini Sorular
+    </div>
+    <div class="nav-item" onclick="showPage('hizliTekrar')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M3 8a5 5 0 1010 0A5 5 0 003 8zm4-2h2v2.5l1.5 1-1 1.7L7 9.5V6z"/></svg>
+      Hızlı Tekrar (Flashcard)
+    </div>
+    <div class="nav-item" onclick="showPage('gelisim')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1 12h2V6H1v6zm3 0h2V2H4v10zm3 0h2V9H7v3zm3 0h2V4h-2v8zm3 0h2V7h-2v5z"/></svg>
+      Gelişim Takibi
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <button class="theme-toggle" onclick="toggleTheme()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M7 1a6 6 0 100 12A6 6 0 007 1zm0 1.5A4.5 4.5 0 117 11V2.5z"/></svg>
+      <span id="theme-label">Aydınlık Mod</span>
+    </button>
+  </div>
+</aside>
+
+<main class="main">
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="page-header">
+    <div class="page-title">Veritabanı Programlama — Final Hazırlık</div>
+    <div class="page-desc">T-SQL · Kısıtlar · Hareket · Güvenlik · Yedekleme · NoSQL · Bulut · 3 yıllık çıkmış soru analizi</div>
+  </div>
+  <div style="padding:32px;">
+    <div class="grid g4" style="margin-bottom:24px;">
+      <div class="stat"><div class="stat-val" style="color:var(--green);" id="stat-dogru">0</div><div class="stat-label">Doğru Cevap</div><div class="stat-sub" id="stat-dogru-oran">—</div></div>
+      <div class="stat"><div class="stat-val" style="color:var(--red);" id="stat-yanlis">0</div><div class="stat-label">Yanlış Cevap</div><div class="stat-sub" id="stat-yanlis-oran">—</div></div>
+      <div class="stat"><div class="stat-val" style="color:var(--amber);" id="stat-sinav">0</div><div class="stat-label">Sınav Tamamlandı</div><div class="stat-sub">sınav modu</div></div>
+      <div class="stat"><div class="stat-val" style="color:var(--accent);">60</div><div class="stat-label">Toplam Soru</div><div class="stat-sub">3 yıl × 20 soru</div></div>
+    </div>
+    <div class="grid g2" style="margin-bottom:24px;">
+      <div class="card">
+        <div style="font-size:13px;font-weight:700;margin-bottom:16px;color:var(--text);">🔥 En Çok Çıkan Konular</div>
+        <div class="heat-item"><span style="font-size:12px;color:var(--text2);min-width:200px;">COMMIT / ROLLBACK / BEGIN</span><div class="heat-bar"><div class="heat-fill" style="width:100%;background:var(--red);"></div></div><span class="heat-count">9x</span></div>
+        <div class="heat-item"><span style="font-size:12px;color:var(--text2);min-width:200px;">Master Veritabanı İşlevi</span><div class="heat-bar"><div class="heat-fill" style="width:88%;background:var(--red);"></div></div><span class="heat-count">8x</span></div>
+        <div class="heat-item"><span style="font-size:12px;color:var(--text2);min-width:200px;">Tam Yedekleme</span><div class="heat-bar"><div class="heat-fill" style="width:77%;background:var(--amber);"></div></div><span class="heat-count">7x</span></div>
+        <div class="heat-item"><span style="font-size:12px;color:var(--text2);min-width:200px;">db_owner / Rol Yönetimi</span><div class="heat-bar"><div class="heat-fill" style="width:77%;background:var(--amber);"></div></div><span class="heat-count">7x</span></div>
+        <div class="heat-item"><span style="font-size:12px;color:var(--text2);min-width:200px;">Paylaşılan Kilit (Shared Lock)</span><div class="heat-bar"><div class="heat-fill" style="width:66%;background:var(--accent);"></div></div><span class="heat-count">6x</span></div>
+        <div class="heat-item"><span style="font-size:12px;color:var(--text2);min-width:200px;">NoSQL / MongoDB / BigQuery</span><div class="heat-bar"><div class="heat-fill" style="width:66%;background:var(--accent);"></div></div><span class="heat-count">6x</span></div>
+        <div class="heat-item"><span style="font-size:12px;color:var(--text2);min-width:200px;">Özel Bulut / Bulut Türleri</span><div class="heat-bar"><div class="heat-fill" style="width:55%;background:var(--purple);"></div></div><span class="heat-count">5x</span></div>
+        <div class="heat-item"><span style="font-size:12px;color:var(--text2);min-width:200px;">Kilitlenme (Deadlock)</span><div class="heat-bar"><div class="heat-fill" style="width:44%;background:var(--teal);"></div></div><span class="heat-count">4x</span></div>
+      </div>
+      <div class="card">
+        <div style="font-size:13px;font-weight:700;margin-bottom:16px;color:var(--text);">📋 Hızlı Özet — Kritik Bilgiler</div>
+        <div style="font-size:12px;color:var(--text2);line-height:2;">
+          <div>✅ <strong style="color:var(--text);">T-SQL:</strong> Microsoft & Sybase için geliştirildi</div>
+          <div>✅ <strong style="color:var(--text);">EXECUTE:</strong> Dinamik SQL sorgusu çalıştırır</div>
+          <div>✅ <strong style="color:var(--text);">Yerel değişken:</strong> @ ile başlar (@@= sistem)</div>
+          <div>✅ <strong style="color:var(--text);">Metaveri fonks.:</strong> DB nesneleri hakkında bilgi</div>
+          <div>✅ <strong style="color:var(--text);">Yabancı Anahtar:</strong> Referansal bütünlük kısıtlayıcısı</div>
+          <div>✅ <strong style="color:var(--text);">COMMIT:</strong> Değişiklikleri kalıcı hale getirir</div>
+          <div>✅ <strong style="color:var(--text);">Paylaşılan Kilit:</strong> Okuma izni verir, güncellemeyi engeller</div>
+          <div>✅ <strong style="color:var(--text);">Master DB:</strong> Tüm yapılandırma bilgilerini saklar</div>
+          <div>✅ <strong style="color:var(--text);">Tam Yedekleme:</strong> Veriyi tek seferde alır</div>
+          <div>✅ <strong style="color:var(--text);">MongoDB koleksiyon:</strong> JSON formatında belgeler</div>
+          <div>✅ <strong style="color:var(--text);">BigQuery en üst bileşen:</strong> Projeler</div>
+          <div>✅ <strong style="color:var(--text);">Özel Bulut:</strong> Sadece kendi kullanımı için izole</div>
+        </div>
+      </div>
+    </div>
+    <div class="grid g3">
+      <div class="card" style="cursor:pointer;border-color:rgba(108,143,255,0.3);" onclick="showPage('cikmisSorular')">
+        <div style="font-size:32px;margin-bottom:8px;">📝</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Çıkmış Sorular</div>
+        <div style="font-size:12px;color:var(--text2);">2022, 2023-24, 2024-25 sınavlarının tüm soruları ve açıklamaları</div>
+      </div>
+      <div class="card" style="cursor:pointer;border-color:rgba(62,207,142,0.3);" onclick="showPage('sinavModu')">
+        <div style="font-size:32px;margin-bottom:8px;">⏱️</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Sınav Modu</div>
+        <div style="font-size:12px;color:var(--text2);">20 soruluk zamanlı sınav — gerçek sınav simülasyonu</div>
+      </div>
+      <div class="card" style="cursor:pointer;border-color:rgba(167,139,250,0.3);" onclick="showPage('hizliTekrar')">
+        <div style="font-size:32px;margin-bottom:8px;">🃏</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Flashcard Tekrar</div>
+        <div style="font-size:12px;color:var(--text2);">Kavramları çevirerek öğren — biliyorum / bilmiyorum</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ÜNİTE 5: HAREKET YÖNETİMİ VE EŞ ZAMANLILIK -->
+<div class="page" id="page-unite5">
+  <div class="page-header">
+    <div class="page-title">Ünite 5 — Hareket Yönetimi ve Eş Zamanlılık Kontrolü</div>
+    <div class="page-desc">ACID · BEGIN/COMMIT/ROLLBACK · İzolasyon Seviyeleri · Kilitleme · Kilitlenme (Deadlock)</div>
+  </div>
+  <div style="padding:28px;">
+    <div class="grid g2">
+      <div>
+        <div class="unit-header">
+          <div class="unit-number" style="background:var(--accent);">5a</div>
+          <div><div style="font-size:15px;font-weight:700;">Hareket (Transaction) ve ACID</div><div style="font-size:12px;color:var(--text3);">Her yıl 3-4 soru — KRİTİK!</div></div>
+        </div>
+        <div class="topic-card" style="border-color:var(--red);">
+          <div class="topic-title">Hareket Nedir? <span class="badge badge-red">Her Yıl Çıkıyor</span></div>
+          <ul class="topic-items">
+            <li><strong>Hareket (Transaction):</strong> Daha küçük parçalara bölünemeyen en küçük işlem grubudur</li>
+            <li>Veritabanı üzerinde gerçekleştirilen bir dizi SQL işlemini (SELECT, INSERT, UPDATE, DELETE) kapsayan işlemler grubu</li>
+            <li>Hareket blokları içinde değişiklikler hemen kalıcı olmaz; tüm işlemler başarılı olduğunda kalıcı hale gelir</li>
+            <li>Eğer hata oluşursa hareket başlamadan önceki duruma geri dönülür</li>
+          </ul>
+          <div class="sinav-notu">Hareket = bölünemeyen en küçük işlem grubu. 2023-24 cevap: A (Hareket). Tüm işlemler başarılı → kalıcı. Hata → geri al.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--purple);">
+          <div class="topic-title">ACID Özellikleri <span class="badge badge-red">Her Yıl Çıkıyor</span></div>
+          <ul class="topic-items">
+            <li><strong>A — Atomicity (Bölünmezlik):</strong> "Ya hep ya hiç" — hareket ya tamamen başarılı ya da hiçbir değişiklik yapılmaz</li>
+            <li><strong>C — Consistency (Tutarlılık):</strong> İşlem öncesi ve sonrası tüm kısıtlamalar (PK, FK, CHECK) sağlanmış olmalı</li>
+            <li><strong>I — Isolation (İzolasyon):</strong> Farklı hareket blokları birbirinden bağımsız çalışır; kilitleme ile sağlanır</li>
+            <li><strong>D — Durability (Devamlılık):</strong> Commit sonrası değişiklikler kalıcıdır; <strong>hareket günlüğü (transaction log)</strong> ile sağlanır</li>
+            <li>Hareket günlük dosyası → Devamlılık özelliğini sağlar. (.ldf uzantılı)</li>
+          </ul>
+          <div class="sinav-notu">"Ya hep ya hiç" = Atomicity (Bölünmezlik). 2022 cevap: E (Bölünmezlik). Hareket günlük dosyası → DEVAMLIL​IK (2022: D). Tutarlılık = kısıtlamalar korunur. İzolasyon = kilitleme.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--amber);">
+          <div class="topic-title">Hareket Yönetimi Modları <span class="badge badge-red">Her Yıl Çıkıyor</span></div>
+          <ul class="topic-items">
+            <li><strong>Otokayıt (AutoCommit):</strong> MS SQL Server'ın VARSAYILAN modu. Her DML ifadesi ayrı hareket olarak otomatik commit edilir. Tehlikeli: kazara silinen veri geri alınamaz.</li>
+            <li><strong>Örtük Hareket (Implicit):</strong> SET IMPLICIT_TRANSACTIONS ON ile aktifleşir. Belirli SQL komutları yürütülünce hareket otomatik başlar; COMMIT/ROLLBACK ile bitirilmesi gerekir. Unutulursa tablo bağlantısı açık kalır!</li>
+            <li><strong>Açık Hareket (Explicit):</strong> Kullanıcı BEGIN TRANSACTION ile başlatır, COMMIT veya ROLLBACK ile bitirir. En çok tercih edilen mod — tam kontrol sağlar.</li>
+          </ul>
+          <div class="sinav-notu">Kullanıcı başlatıp sonlandırır → AÇIK HAREKET. 2022 cevap: C (Açık hareket). SET IMPLICIT_TRANSACTIONS ON → örtük mod. Varsayılan → Otokayıt. Her DML ayrı → otokayıt.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--accent);">
+          <div class="topic-title">BEGIN / COMMIT / ROLLBACK / SAVE Komutları <span class="badge badge-red">Her Yıl Çıkıyor</span></div>
+          <ul class="topic-items">
+            <li><strong>BEGIN TRANSACTION:</strong> Açık hareket başlangıç noktasını belirler</li>
+            <li><strong>COMMIT TRANSACTION:</strong> Hata yoksa değişiklikleri kalıcı hale getirir</li>
+            <li><strong>ROLLBACK TRANSACTION:</strong> Hareket başından beri tüm değişiklikleri geri alır</li>
+            <li><strong>SAVE TRANSACTION:</strong> Hareket bloğu içinde geri dönüş noktaları oluşturur → kısmi geri alma</li>
+            <li><strong>@@TRANCOUNT:</strong> Aktif hareket sayısını döndürür. BEGIN → +1, ROLLBACK/COMMIT → -1</li>
+            <li>@@ERROR &lt;&gt; 0 → GOTO HATA_VAR → ROLLBACK TRANSACTION</li>
+          </ul>
+          <div class="sinav-notu">Değişiklikleri kalıcı → COMMIT. 2024-25: D (COMMIT). Açık hareket başlangıç → BEGIN (2023-24: E). Geri alma → ROLLBACK. @@TRANCOUNT → aktif hareket sayısı.</div>
+        </div>
+      </div>
+      <div>
+        <div class="unit-header">
+          <div class="unit-number" style="background:var(--red);">5b</div>
+          <div><div style="font-size:15px;font-weight:700;">Eş Zamanlılık ve Kilitleme</div><div style="font-size:12px;color:var(--text3);">Her yıl 2-3 soru — KRİTİK!</div></div>
+        </div>
+        <div class="topic-card" style="border-color:var(--amber);">
+          <div class="topic-title">Eş Zamanlılık Problemleri <span class="badge badge-amber">Sınavda Çıkar</span></div>
+          <ul class="topic-items">
+            <li><strong>Kayıp Güncelleme (Lost Update):</strong> T1 veriyi okur, T2 günceller+commit eder, T1 de günceller → T2'nin güncellemesi kaybolur</li>
+            <li><strong>Kirli Okuma (Dirty Read):</strong> T1 değiştirir (commit etmeden), T2 okur, T1 rollback yaparsa T2 geçersiz veri okumuş olur</li>
+            <li><strong>Tekrarlanamayan Okuma (Non-Repeatable Read):</strong> T1 aynı veriyi iki kez okur; arada T2 günceller/siler → farklı sonuç</li>
+            <li><strong>Hayalet Okuma (Phantom Read):</strong> T1 aynı WHERE ile iki kez sorgular; arada T2 yeni satır ekler → fazla satır okunur</li>
+          </ul>
+          <div class="sinav-notu">Eş zamanlı erişim başlıca problem → KAYİP GÜNCELLEME (2024-25: E). Kirli okuma = commit edilmemiş veri. Tekrarlanamayan = arada güncelleme. Hayalet = arada ekleme. 2023-24: C (Tekrarlanamayan).</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--teal);">
+          <div class="topic-title">İzolasyon Seviyeleri <span class="badge badge-amber">Sınavda Çıkar</span></div>
+          <ul class="topic-items">
+            <li><strong>READ UNCOMMITTED (Kaydedilmemiş Okuma):</strong> En az kısıtlama. Kirli+tekrarlanamayan+hayalet okuma mümkün.</li>
+            <li><strong>READ COMMITTED (Kaydedilmiş Okuma):</strong> MS SQL Server VARSAYILANI. Kirli okuma engellenir. Tekrarlanamayan ve hayalet oluşabilir.</li>
+            <li><strong>REPEATABLE READ (Tekrarlanabilir Okuma):</strong> Kirli + tekrarlanamayan engellenir. Hayalet okuma oluşabilir.</li>
+            <li><strong>SERIALIZABLE (Serileştirilebilir):</strong> En kısıtlayıcı. Tüm üç problem engellenir. Kilitlenme riski en yüksek.</li>
+            <li><strong>SNAPSHOT (Anlık Görüntü):</strong> Hareket başındaki veri görüntüsünü kullanır. Kirli okumayı engeller. Satır sürümleme kullanır.</li>
+          </ul>
+          <div style="overflow-x:auto;margin:8px 0;">
+            <table class="info-table">
+              <tr><th>İzolasyon Düzeyi</th><th>Kirli Okuma</th><th>Tekrarlanamayan</th><th>Hayalet</th></tr>
+              <tr><td>READ UNCOMMITTED</td><td style="color:var(--red);text-align:center;">Var</td><td style="color:var(--red);text-align:center;">Var</td><td style="color:var(--red);text-align:center;">Var</td></tr>
+              <tr><td>READ COMMITTED</td><td style="color:var(--green);text-align:center;">Yok</td><td style="color:var(--red);text-align:center;">Var</td><td style="color:var(--red);text-align:center;">Var</td></tr>
+              <tr><td>REPEATABLE READ</td><td style="color:var(--green);text-align:center;">Yok</td><td style="color:var(--green);text-align:center;">Yok</td><td style="color:var(--red);text-align:center;">Var</td></tr>
+              <tr><td>SERIALIZABLE</td><td style="color:var(--green);text-align:center;">Yok</td><td style="color:var(--green);text-align:center;">Yok</td><td style="color:var(--green);text-align:center;">Yok</td></tr>
+            </table>
+          </div>
+          <div style="overflow-x:auto;margin:8px 0;">
+            <table class="info-table">
+              <tr><th>Komut</th><th>Açıklama</th></tr>
+              <tr><td style="font-family:var(--mono);font-size:10px;">SET TRANSACTION ISOLATION LEVEL READ COMMITTED;</td><td>Kaydedilmiş okuma (varsayılan)</td></tr>
+              <tr><td style="font-family:var(--mono);font-size:10px;">SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;</td><td>Kaydedilmemiş okuma</td></tr>
+              <tr><td style="font-family:var(--mono);font-size:10px;">SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;</td><td>Tekrarlanabilir okuma</td></tr>
+              <tr><td style="font-family:var(--mono);font-size:10px;">SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;</td><td>Serileştirilebilir (en kısıtlayıcı)</td></tr>
+              <tr><td style="font-family:var(--mono);font-size:10px;">SET TRANSACTION ISOLATION LEVEL SNAPSHOT;</td><td>Anlık görüntü (satır sürümleme)</td></tr>
+            </table>
+          </div>
+          <div class="sinav-notu">Varsayılan → READ COMMITTED. En kısıtlayıcı → SERIALIZABLE. En az kısıtlama → READ UNCOMMITTED. SNAPSHOT → satır sürümleme kullanır, Tempdb'ye yazar. SET TRANSACTION ISOLATION LEVEL ... ile aktif edilir.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--red);">
+          <div class="topic-title">Kilitleme (Locking) Yönetimi <span class="badge badge-red">Her Yıl Çıkıyor</span></div>
+          <ul class="topic-items">
+            <li><strong>Paylaşılan Kilit (S — Shared):</strong> Okuma işlemlerinde. Diğer okumalara izin verir, yazmayı engeller. Okuma biter bitmez serbest bırakılır.</li>
+            <li><strong>Ayrıcalıklı Kilit (X — Exclusive):</strong> Yazma işlemlerinde (INSERT/UPDATE/DELETE). Hem okumayı hem yazmayı engeller. Hareket sonuna kadar tutulur.</li>
+            <li><strong>Güncelleme Kilidi (U — Update):</strong> Paylaşılan + ayrıcalıklı kombinasyonu. Güncelleme öncesi arama aşamasında. Deadlock'u önler.</li>
+            <li><strong>Amaç Kilitleri (IS, IX, SIX):</strong> Alt kaynaklarda kilit var olduğunu üst kaynağa bildirir.</li>
+            <li><strong>Şema Kararlılık (Sch-S):</strong> Sorgu derlenirken. Şema Değiştirme (Sch-M): DDL işlemlerinde.</li>
+            <li><strong>Toplu Güncelleme (BU):</strong> Toplu kopyalama işlemlerinde kullanılır.</li>
+          </ul>
+          <div class="sinav-notu">Okumaya izin, güncellemeyi engeller → PAYLAŞİLAN KİLİT (S). 2024-25: C, 2023-24 ve 2022'de de aynı soru! Ayrıcalıklı (X) → hem okuma hem yazma engeller. Hareket sonuna kadar tutulur.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--purple);">
+          <div class="topic-title">Kilitlenme (Deadlock) <span class="badge badge-amber">Sınavda Çıkar</span></div>
+          <ul class="topic-items">
+            <li><strong>Deadlock:</strong> İki veya daha fazla hareket birbirinin beklediği kaynakları kilitleyerek sonsuz döngüye girer</li>
+            <li>A hareketi satır1'i kilitler, satır2'yi bekler. B hareketi satır2'yi kilitler, satır1'i bekler → Deadlock!</li>
+            <li><strong>Kilitlenme İzleyicisi (Deadlock Monitor):</strong> Her 5 saniyede bir çalışır; deadlock tespit ederse bir hareketi kurban seçer ve ROLLBACK uygular</li>
+            <li>Kilitlenme hata numarası: 1205</li>
+            <li><strong>Önleme yöntemleri:</strong> Sorgu optimizasyonu, kısa hareketler, en düşük izolasyon düzeyi, varlıklara aynı sırayla erişim, WITH NOLOCK, TRY-CATCH ile 1205 hata kontrolü</li>
+          </ul>
+          <div class="sinav-notu">Deadlock'u tespit eden → KİLİTLENME İZLEYİCİSİ. 2024-25: A. Hata numarası: 1205. WITH NOLOCK → kirli okuma riski ama kilitlenme olmaz. Kısa hareketler → X kilitleri kısa süre tutulur.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--green);">
+          <div class="topic-title">Kilitlenebilir Kaynaklar ve Kilit Uyumluluğu</div>
+          <ul class="topic-items">
+            <li>Kilitlenebilir kaynaklar: RID (satır tanımlayıcı), KEY (indeks satırı), PAGE (sayfa), EXTENT, OBJECT (tablo), DATABASE</li>
+            <li>Satırlar sayfalarda, sayfalar tablolarda bulunur. Küçük kilit = yüksek eş zamanlılık</li>
+            <li>IS ile X → UYUMSUZ. S ile IX → UYUMSUZ. X ile tüm diğerleri → UYUMSUZ</li>
+            <li>IS ile IS, IS ile S, IS ile U, IS ile IX, IS ile SIX → UYUMLU (okuma ağırlıklı)</li>
+          </ul>
+          <div class="sinav-notu">SIX → Paylaşılan kilit mod uygulanmış kaynağın ayrıcalıklı modda bileşeni var. 2022 sınavı cevap: A (Ayrıcalıklı Kilit Modu = Exclusive). IS+X = HAYIR. X+X = HAYIR.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ÜNİTE 6: GÜVENLİK VE YETKİLENDİRME -->
+<div class="page" id="page-unite6">
+  <div class="page-header">
+    <div class="page-title">Ünite 6 — Güvenlik ve Yetkilendirme</div>
+    <div class="page-desc">Bilgi Güvenliği · SSL · GRANT/REVOKE/DENY · Roller · Sunucu ve Ağ Güvenliği</div>
+  </div>
+  <div style="padding:28px;">
+    <div class="grid g2">
+      <div>
+        <div class="unit-header">
+          <div class="unit-number" style="background:var(--green);">6a</div>
+          <div><div style="font-size:15px;font-weight:700;">Bilgi Güvenliği ve Ağ Güvenliği</div><div style="font-size:12px;color:var(--text3);">Her yıl 2-3 soru — KRİTİK!</div></div>
+        </div>
+        <div class="topic-card" style="border-color:var(--red);">
+          <div class="topic-title">Bilgi Güvenliği Hedefleri <span class="badge badge-red">Her Yıl Çıkıyor</span></div>
+          <ul class="topic-items">
+            <li>Bilgi Güvenliği Yönetim Sistemi Standardı (TS ISO/IEC 27001) üç temel hedef belirler:</li>
+            <li><strong>Gizlilik (Confidentiality):</strong> Bilgiye yalnızca yetkili kişilerin erişmesi</li>
+            <li><strong>Bütünlük (Integrity):</strong> Verinin doğruluğunun ve tutarlılığının korunması; yetkisiz değişime karşı korunma</li>
+            <li><strong>Kullanılabilirlik (Availability):</strong> Yetkili kullanıcıların ihtiyaç duydukları anda bilgiye erişebilmesi</li>
+            <li>Bilgi güvenliği önce ihtiyaç → zamanla zorunluluk hâline geldi</li>
+          </ul>
+          <div class="sinav-notu">3 hedef: GİZLİLİK, BÜTÜNLÜK, KULLANILABİLİRLİK. "Hangisi hedeflerden biridir?" → Bütünlük (Integrity). Kullanıcı oluşturma, erişim sağlamak → hedef DEĞİL.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--amber);">
+          <div class="topic-title">Güvenlik Açıkları Kategorileri <span class="badge badge-amber">Sınavda Çıkar</span></div>
+          <ul class="topic-items">
+            <li><strong>DONANIM Güvenlik Açıkları:</strong> Kasıtsız zarar (toz, yıldırım, su basması), Kasıtlı zarar (hırsızlık, fiziksel kırma/bozma)</li>
+            <li><strong>YAZILIM Güvenlik Açıkları:</strong> Silinme (kasıtlı/kasıtsız), Değiştirilme (Truva Atları, Virüsler, Arka Kapılar, Solucanlar, Bilgi Sızdırma), Hırsızlık (lisansız kullanım, izinsiz kopyalama)</li>
+            <li><strong>VERİ Güvenlik Açıkları:</strong> Gizliliğin ihlali (dinleme, bilgi sızdırma insanlar yoluyla), Engelleme (silme, ulaşılamaz hale getirme), Bütünlüğün bozulması (veri değişikliği, sahte veri)</li>
+          </ul>
+          <div class="sinav-notu">Bilgi sızdırma → VERİ güvenlik açığı. 2024-25: B. Yazılımsal güvenlik açığı DEĞİL → Veri Değişikliği (2022: E). Truva atı, virüs, solucan, arka kapı → YAZILIMSAL.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--teal);">
+          <div class="topic-title">Sunucu ve Ağ Güvenliği — SSL <span class="badge badge-amber">Sınavda Çıkar</span></div>
+          <ul class="topic-items">
+            <li>SQL Server bir Windows servisi olarak çalışır; çalıştıracak hesabı <strong>SQL Server Yapılandırma Yöneticisi</strong>'nden seçilir</li>
+            <li><strong>Koklayıcı (Sniffer):</strong> Sayısal ağ üzerinden geçen trafiği izleyen yazılım</li>
+            <li><strong>SSL (Secure Sockets Layer) Sertifikası:</strong> SQL Server trafiğini şifreler, koklayıcı tespitini önler. Configuration Manager → Force Encryption = Yes ile aktif edilir</li>
+            <li><strong>Kimlik Doğrulama:</strong> Windows Authentication (daha güvenli, devre dışı bırakılamaz) veya Mixed Mode (Windows + SQL Server)</li>
+            <li>Windows kullanıcısı silinirse → SQL Server'da sahipsiz kullanıcı olarak kalır, giriş yapamaz</li>
+            <li>Şifre gücü: Rastgele sayı+harf+sembol kombinasyonu, minimum 8-10 karakter</li>
+          </ul>
+          <div class="sinav-notu">Koklayıcı tespiti engellemek → SSL sertifikası. 2024-25: D (SSL). DHCP, ARP, TCP, UDP → protokol. Sadece Windows kullanıcılarına giriş → Windows Authentication Mode (2022: A).</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--accent);">
+          <div class="topic-title">Kullanıcı Oluşturma ve Yönetme <span class="badge badge-amber">Sınavda Çıkar</span></div>
+          <ul class="topic-items">
+            <li><strong>SQL Server'da kullanıcı hesapları → "Logins" (Kullanıcılar)</strong> olarak adlandırılır. SS Management Studio → Security → Logins → New Login</li>
+            <li><strong>CREATE USER kullanıcı_adi:</strong> Veritabanı kullanıcısı oluşturur (sunucu düzeyinden sonra DB düzeyinde atama yapılır)</li>
+            <li>Windows Authentication: Kullanıcı silinirse SQL Server'da sahipsiz kalır, giriş yapamaz ama hesap durur</li>
+            <li>SQL Server hesabı silinince TÜM ayarlar silinir — hesabı silmek yerine <strong>devre dışı bırakmak</strong> (disable) daha iyi bir pratik. Böylece tekrar açılınca tüm tanımlar hazır kalır.</li>
+            <li><strong>Şema (Schema):</strong> Nesneleri mantıksal gruplandıran kap. Daha ayrıntılı yetkilendirme: CREATE SCHEMA AUTHORIZATION kullanıcı_ismi</li>
+            <li>Credentials, Audits → Login DEĞİL (sınav tuzağı!)</li>
+          </ul>
+          <div class="sinav-notu">SQL Server kullanıcı hesapları → LOGİNS. 2023-24: B (Logins). Kullanıcı oluşturma → CREATE USER (2022: D). Hesabı silmeden erişimi kapat → devre dışı bırak. Şema → detaylı yetkilendirme için.</div>
+        </div>
+      </div>
+      <div>
+        <div class="unit-header">
+          <div class="unit-number" style="background:var(--purple);">6b</div>
+          <div><div style="font-size:15px;font-weight:700;">Yetkilendirme ve Roller</div><div style="font-size:12px;color:var(--text3);">Her yıl 3-4 soru — KRİTİK!</div></div>
+        </div>
+        <div class="topic-card" style="border-color:var(--green);">
+          <div class="topic-title">GRANT / REVOKE / DENY Komutları <span class="badge badge-red">Her Yıl Çıkıyor</span></div>
+          <ul class="topic-items">
+            <li><strong>GRANT:</strong> Kullanıcıya yetki verir → GRANT SELECT ON Urunler TO Ali</li>
+            <li><strong>REVOKE:</strong> Verilmiş yetkiyi geri alır → REVOKE UPDATE ON Urunler TO Can</li>
+            <li><strong>DENY:</strong> Yetkiyi açıkça reddeder — GRANT olsa bile geçersiz kılar → DENY INSERT ON Urunler TO Ali</li>
+            <li>GRANT ALL ON Tablo TO Kullanici → tüm yetkileri tek seferde verir</li>
+            <li>REVOKE ALL ON Urunler TO Ali → tüm yetkileri geri alır</li>
+            <li>Ayrıcalıklar: SELECT, INSERT, UPDATE, DELETE ve sütun bazında da verilebilir</li>
+          </ul>
+          <div class="sinav-notu">Tüm yetkileri iptal → REVOKE ALL. 2024-25: A. Yetki verme → GRANT, kaldırma → REVOKE. 2022: C (GRANT-REVOKE). DENY, GRANT'i ezer! Sözdizim: GRANT ... ON ... TO ...</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--amber);">
+          <div class="topic-title">Sunucu Rolleri <span class="badge badge-amber">Sınavda Çıkar</span></div>
+          <table class="info-table">
+            <tr><th>Rol İsmi</th><th>Haklar</th></tr>
+            <tr><td>Veritabanı oluşturma</td><td>DB oluşturma, silme, değiştirme</td></tr>
+            <tr><td>Disk yöneticisi</td><td>Dosyaları yönetme</td></tr>
+            <tr><td>Süreç yöneticisi</td><td>Süreçleri/işlemleri yönetme</td></tr>
+            <tr><td>Güvenlik yöneticisi</td><td>Kullanıcı ve erişim haklarını yönetme</td></tr>
+            <tr><td>Sunucu yöneticisi</td><td>Sunucu ayarlarını yapabilme</td></tr>
+            <tr><td>Kurma yöneticisi</td><td>Bağlı sunucu ayarları ve genişletilmiş saklı yordamlar</td></tr>
+            <tr><td>Sistem yöneticisi (sysadmin)</td><td>Tüm aktiviteleri yapabilme — en üst yetki</td></tr>
+          </table>
+          <div class="sinav-notu">Sunucu rolleri SQL Server kurulumunda otomatik oluşur, değiştirilemez. Disk yedekleme → Sunucu rolü DEĞİL; db_backupoperator veritabanı rolüdür.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--red);">
+          <div class="topic-title">Veritabanı Rolleri <span class="badge badge-red">Her Yıl Çıkıyor</span></div>
+          <table class="info-table">
+            <tr><th>Rol İsmi</th><th>Haklar</th></tr>
+            <tr><td>db_owner</td><td>Tüm ayarlama ve silebilme — en kapsamlı</td></tr>
+            <tr><td>db_accessadmin</td><td>Windows+SQL Server hesaplarına erişim yetkisi verebilme</td></tr>
+            <tr><td>db_securityadmin</td><td>Yetkilendirmeleri değiştirebilme</td></tr>
+            <tr><td>db_datareader</td><td>Kullanıcı tablolarına SELECT yapabilme</td></tr>
+            <tr><td>db_datawriter</td><td>INSERT/DELETE/UPDATE yapabilme</td></tr>
+            <tr><td>db_denydatawriter</td><td>INSERT/DELETE/UPDATE yapamaz</td></tr>
+            <tr><td>db_denydatareader</td><td>SELECT yapamaz</td></tr>
+            <tr><td>db_backupoperator</td><td>Veritabanı yedeğini alabilme</td></tr>
+          </table>
+          <ul class="topic-items" style="margin-top:8px;">
+            <li>Yeni rol: CREATE ROLE rol_bilgisayar AUTHORIZATION db_owner</li>
+            <li>Role üye ekle: EXEC sp_addrolemember 'rol_adi', 'kullanici_adi'</li>
+            <li>Şema ile role rol ekleme: ALTER AUTHORIZATION ON SCHEMA :: [db_accessadmin] TO [rol_adi]</li>
+          </ul>
+          <div class="sinav-notu">Tüm ayarlama ve silme → db_owner. 2024-25: C, 2022: A. Erişim yetkisi verme → db_accessadmin (2022: D). EXEC sp_addrolemember → role üye ekler (2022 soru). Yedek → db_backupoperator.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--accent);">
+          <div class="topic-title">Kullanıcı Oluşturma ve Şema (Schema) <span class="badge badge-amber">Sınavda Çıkar</span></div>
+          <ul class="topic-items">
+            <li><strong>Logins:</strong> SQL Server'daki kullanıcı hesaplarına verilen ad. SS Management Studio → Security → Logins → New Login</li>
+            <li><strong>Veritabanı kullanıcısı:</strong> CREATE USER kullanici_adi ile oluşturulur</li>
+            <li><strong>Kısıtlı Erişim Denetimi:</strong> GRANT/REVOKE/DENY ile bireysel yetki — kişi bazlı, zayıf yanı var</li>
+            <li><strong>Sistemsel Erişim Denetimi:</strong> Roller (Roles) — grup bazlı, güvenlik etiketleri, bireysel kullanıcılar değiştiremez</li>
+            <li><strong>Şema (Schema):</strong> Nesneleri mantıksal gruplandıran kap. Daha ayrıntılı yetkilendirme için: CREATE SCHEMA AUTHORIZATION kullanici_ismi [şema_öğesi]</li>
+          </ul>
+          <div class="sinav-notu">SQL Server kullanıcı hesapları → LOGİNS. 2023-24: B (Logins). Kullanıcı oluşturma → CREATE USER (2022: D). Şema → nesneleri gruplandıran kap, detaylı yetkilendirme. Credentials, Audits → login DEĞİL.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ÜNİTE 7: YEDEKLEME, FELAKET YÖNETİMİ, BAKIM -->
+<div class="page" id="page-unite7">
+  <div class="page-header">
+    <div class="page-title">Ünite 7 — Yedekleme, Felaket Yönetimi ve Bakım</div>
+    <div class="page-desc">Sistem DB · Yedekleme Türleri · Senaryo · Geri Yükleme · Kümeleme · Replikasyon · İkizleme · Bakım Planı</div>
+  </div>
+  <div style="padding:28px;">
+    <div class="grid g2">
+      <div>
+        <div class="unit-header">
+          <div class="unit-number" style="background:var(--purple);">7a</div>
+          <div><div style="font-size:15px;font-weight:700;">MS SQL Server Dosya ve DB Yapısı</div><div style="font-size:12px;color:var(--text3);">Her yıl 3-4 soru — KRİTİK!</div></div>
+        </div>
+        <div class="topic-card" style="border-color:var(--purple);">
+          <div class="topic-title">Kullanıcı Veritabanı Dosyaları</div>
+          <ul class="topic-items">
+            <li><strong>Veri dosyaları (.mdf ve .ndf):</strong> Tabloları ve indeksleri barındırır. 8kB bloklara ayrılmıştır.</li>
+            <li><strong>Hareket günlük dosyası (.ldf):</strong> İşlemlerin komut dizisidir, geriye de çalıştırılabilir. Rollback ve sistem kurtarma için kritik.</li>
+            <li>Veri dosyaları → Dosya gruplarına bölünebilir → yüksek performans ve esneklik</li>
+          </ul>
+          <div class="sinav-notu">.mdf → ana veri dosyası. .ndf → ek veri dosyası. .ldf → hareket günlük (log) dosyası. Log dosyası → devamlılık ve geri alma için.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--red);">
+          <div class="topic-title">Sistem Veritabanları <span class="badge badge-red">Her Yıl Çıkıyor</span></div>
+          <ul class="topic-items">
+            <li><strong>Master:</strong> Tüm yapılandırma bilgileri — oturum açma, DB konumları, replikasyon, ikizleme. Bozulursa SQL Server çalışamaz! Sadece TAM yedek alınabilir.</li>
+            <li><strong>Model:</strong> Yeni veritabanları için şablon. Yeni DB oluşturulunca Model'in kopyası oluşturulur. Model'deki değişiklik yeni DB'leri etkiler.</li>
+            <li><strong>Msdb:</strong> SQL Agent servisinin yapılandırması, yedekleme geçmişi, uyarılar ve işler. History Cleanup Task buradan temizler.</li>
+            <li><strong>Tempdb:</strong> Geçici tablolar, değişkenler, sıralama işlemleri, sürüm yönetimi. SQL Server her yeniden başlatıldığında sıfırlanır (yeniden oluşturulur).</li>
+          </ul>
+          <div class="sinav-notu">Tüm yapılandırma → MASTER. 2024-25: A, 2023-24: B, 2022: C — Her yıl aynı soru! Tempdb = geçici, her başlatmada sıfırlanır (2022 soru: C). Model = şablon. Msdb = Agent/yedek geçmişi.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--teal);">
+          <div class="topic-title">Sistem Veritabanı Kurtarma <span class="badge badge-amber">Sınavda Çıkar</span></div>
+          <ul class="topic-items">
+            <li><strong>Master bozulursa:</strong> SQL Server çalışamaz! İki yöntem: (1) Aynı sürüm başka SQL sunucudan master.mdf + mastlog.ldf kopyala, (2) setup.exe ile REBUILDDATABASE komutu çalıştır</li>
+            <li>Master yeniden oluşturulunca Msdb de sıfırlanır → önce MSDBData.mdf ve MSDBLog.ldf yedekle!</li>
+            <li>Orijinal Master geri yüklemek için: SQL Server tek kullanıcı moduna al (NET STOP + /m) → sqlcmd ile RESTORE DATABASE master FROM DISK</li>
+            <li><strong>Tempdb bozulursa:</strong> SQL Server'ı yeniden başlatmak yeterli — Tempdb her başlatmada otomatik yeniden oluşturulur</li>
+            <li><strong>Msdb bozulursa:</strong> Normal kullanıcı veritabanı gibi yedekten geri yüklenir</li>
+            <li><strong>Yedek güvenliği:</strong> Çalışan DB'deki rol/güvenlik katmanları yedekte aktif değil — şifrelenmemiş yedek ele geçirilirse tüm veri erişilebilir! Yedekler de DB kadar korunmalı.</li>
+          </ul>
+          <div class="sinav-notu">Tempdb bozulur → SQL Server'ı yeniden başlat yeterli. Master bozulur → çalışmaz, farklı sunucudan kopyala veya rebuild. Msdb → normal yedekten geri yükle. Yedekler şifrelenmeli = güvenlik önlemi.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--amber);">
+          <div class="topic-title">Yedekleme Türleri <span class="badge badge-red">Her Yıl Çıkıyor</span></div>
+          <ul class="topic-items">
+            <li><strong>Tam Yedekleme (Full):</strong> Tüm verinin tek seferde yedeği. En kapsamlı. Yedek uzantısı .BAK. Fark ve log yedekten önce mutlaka tam yedek alınmalı.</li>
+            <li><strong>Fark Yedeklemesi (Differential):</strong> Son tam yedekten sonra değişen bloklar alınır. Daha küçük, daha hızlı. Tek başına geri yükleme için tam yedek gerekir.</li>
+            <li><strong>Hareket Günlük Yedekleme (Transaction Log):</strong> Verinin değil, değişiklik kayıtlarının yedeği. Belirli zaman noktasına geri dönme imkânı. "truncate the transaction log" → yedek sonrası log temizler.</li>
+            <li><strong>Copy-Only Backup:</strong> SQL Server yedek indeksine kaydedilmez; fark/log yedeklerine temel oluşturmaz. Bağımsız anlık kopya.</li>
+          </ul>
+          <div class="sinav-notu">Veriyi tek seferde → TAM YEDEKLEME. 2024-25: C, 2023-24: E, 2022: C. Değişiklik kayıtları → Hareket Günlük (2022: B). Fark yedeği tek başına geri yüklenemez — tam yedek gerekir (2022: D soru).</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--teal);">
+          <div class="topic-title">Yedekleme Seçenekleri Detayı</div>
+          <ul class="topic-items">
+            <li><strong>Media Set (Ortam Seti):</strong> Yedeklerin kaydedildiği ortamların bir arada tanımı (disk, teyp).</li>
+            <li><strong>Backup Set (Yedek Seti):</strong> Ortam setine kaydedilen yedekler — bir indeks oluşturur.</li>
+            <li><strong>Yedek Hedefi:</strong> Disk (yerel) veya URL (Azure bulut) olabilir.</li>
+            <li><strong>Overwrite Media seçenekleri:</strong> Append (var olana ekle) veya Override (üstüne yaz)</li>
+            <li><strong>Reliability:</strong> Verify backup when finished (geri yükleme denemesi ile doğrula), Perform checksum (blok sağlama toplamı)</li>
+            <li><strong>Şifreleme (Encrypt Backup):</strong> AES 128, AES 192, AES 256 veya Triple DES. Sertifika seçilir.</li>
+            <li><strong>Sıkıştırma (Compress Backup):</strong> Yedek boyutunu önemli ölçüde azaltır.</li>
+          </ul>
+          <div class="sinav-notu">Yedek şifreleme: AES 128/192/256, Triple DES. Şifrelenmiş yedek sadece yedeği alan sunucu tarafından geri açılabilir. Güvenlik için yedekler de en az DB kadar korunmalı.</div>
+        </div>
+      </div>
+      <div>
+        <div class="unit-header">
+          <div class="unit-number" style="background:var(--teal);">7b</div>
+          <div><div style="font-size:15px;font-weight:700;">Geri Yükleme, Felaket ve Bakım</div><div style="font-size:12px;color:var(--text3);">Her yıl 3-4 soru — KRİTİK!</div></div>
+        </div>
+        <div class="topic-card" style="border-color:var(--green);">
+          <div class="topic-title">Yedekleme Senaryosu</div>
+          <ul class="topic-items">
+            <li>Senaryo oluştururken değerlendirilen faktörler: veritabanının önemi, veri değişimi yoğunluğu, maksimum veri kaybı toleransı, ortam riskleri, güvenlik ihtiyacı, maksimum geri dönme süresi, imkânlar.</li>
+            <li>Yedekler veritabanı sunucusundan UZAKLAŞTIRILMALI — aynı sistemde tutulursa felaket yedekleri de yok eder.</li>
+            <li>Yedekleme senaryosu kurulduktan sonra MUTLAKA test edilmeli — geri yüklenemeyen yedek işe yaramaz. Yılda en az 2 kez periyodik kontrol.</li>
+          </ul>
+          <div class="sinav-notu">Yedekler veritabanı ile aynı sistemde tutulmamalı. Senaryo test edilmeli. En az yılda 2 kez geri yükleme testi. Küçük uygulamalarda basit kopyalama ile yedekleme yeterli olabilir.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--amber);">
+          <div class="topic-title">Replikasyon ve İkizleme <span class="badge badge-amber">Sınavda Çıkar</span></div>
+          <ul class="topic-items">
+            <li><strong>Replikasyon:</strong> Ana DB'nin hareket kayıtları kısa periyotlarla ayrı diske bırakılır. Kopya DB'ler okur ve taklit eder. EŞ ZAMANLI DEĞİL — kopya biraz geride kalır. Daha az yük, esnek. Ana DB çöktüğünde MANUEL geçiş gerekir.</li>
+            <li><strong>İkizleme (Mirroring):</strong> Kopya sunucular ana sunucuya doğrudan bağlı; işlemler aracısız transfer edilir. Eş zamanlı eşitleme mümkün. <strong>Şahit (Witness)</strong> sunucu ile ana çöktüğünde OTOMATİK geçiş sağlanır. Yüksek erişilebilirlik. Daha maliyetli — "tamamlandı" bilgisi kopyaya iletilmeden döndürülmez.</li>
+          </ul>
+          <div class="sinav-notu">Otomatik geçiş → İKİZLEME (şahit sunucu şart). Manuel geçiş → REPLİKASYON. Bağımsız sunucular tek sistem = KÜMELEME. Replikasyon → eş zamanlı DEĞİL (2022: D soru). İkizleme maliyeti yüksek.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--purple);">
+          <div class="topic-title">Geri Yükleme Nedenleri <span class="badge badge-red">Her Yıl Çıkıyor</span></div>
+          <ul class="topic-items">
+            <li>✅ Felakete uğrayan veritabanını yerine koymak</li>
+            <li>✅ Yanlış yapılan bir işlemi verinin önceki hâline ulaşarak onarmak</li>
+            <li>✅ Test ortamı oluşturmak (gerçek veriyi anlamsızlaştırarak)</li>
+            <li>✅ İkizleme kurgusunun kurulumunu yapmak (tam yedek ile kopya senkronize edilir)</li>
+            <li>✅ Eski hâline ulaşarak çeşitli araştırmalar yapmak (yasal nedenler, arşiv)</li>
+            <li>❌ <strong>Verinin YENİ haline ulaşmak → yedekten geri yükleme nedeni DEĞİL!</strong></li>
+            <li>❌ <strong>Veritabanı güvenliğini artırmak → yedekleme nedeni DEĞİL!</strong></li>
+          </ul>
+          <div class="sinav-notu">Geri yükleme nedeni DEĞİL → "Verinin yeni haline ulaşmak". 2024-25: E. "Güvenliği artırmak" da değil (2022: A). Geçerli nedeni: KAÇIŞMAK için test, ikizleme, onarım, felaket.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--red);">
+          <div class="topic-title">Geri Yükleme Seçenekleri (Restore Options)</div>
+          <ul class="topic-items">
+            <li>Geçerli yedek seti: Bir TAM yedek + (varsa) son FARK yedeği + (varsa) sonrasında alınmış HARİKET GÜNLÜK yedekleri</li>
+            <li><strong>Restore with RECOVERY:</strong> Geri yükleme tamamlanır, veritabanı aktif hale gelir (kullanılabilir)</li>
+            <li><strong>Restore with NORECOVERY:</strong> Veritabanı restoring modunda bırakılır; başka yedek yüklemeye devam edilebilir</li>
+            <li><strong>Restore with STANDBY:</strong> Salt-okunur konuma alınır; tamamlanmamış işlemler standby dosyasına yazılır</li>
+            <li>Overwrite existing database → aynı adda DB varsa üzerine yazar</li>
+          </ul>
+          <div class="sinav-notu">Fark yedeği tek başına geri yüklenemez — önce TAM yedek gerekir. Restore with NORECOVERY → daha fazla yedek yüklenecekse. Restore with RECOVERY → son adımda kullanılır.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--accent);">
+          <div class="topic-title">Felaket Yönetimi ve Bakım Planı <span class="badge badge-amber">Sınavda Çıkar</span></div>
+          <ul class="topic-items">
+            <li><strong>Veritabanı Kümeleme (Clustering):</strong> İki veya daha fazla bağımsız sunucunun tek sistem gibi çalışması. Biri çökerse diğeri devam eder. Sürekli hizmet gerektiren uygulamalar için.</li>
+            <li><strong>Bakım Planı Görevleri (sınav önemi):</strong>
+              <ul style="margin-left:12px;margin-top:4px;">
+                <li>→ Yedekleme görevi (.BAK uzantılı; TAM önce, sonra fark/log)</li>
+                <li>→ <strong>Tutarlılık Kontrolü (DBCC CHECKDB):</strong> Veri bozulmasını kontrol eder. Haftada bir önerilir. Başlamadan önce tam yedek alınmalı.</li>
+                <li>→ <strong>İndeks Yenileme (Rebuild Index Task):</strong> İndeksleri yeniden oluşturur, istatistikler de güncellenir. Parçalanmayı giderir.</li>
+                <li>→ <strong>İstatistik Güncelleme (Update Statistics Task):</strong> Tablo/view bazında istatistik günceller.</li>
+                <li>→ <strong>Geçmiş Temizleme (History Cleanup Task):</strong> Msdb'deki geçmiş kayıtları temizler. Haftada bir önerilir.</li>
+                <li>→ <strong>Bakım Temizleme (Maintenance Cleanup):</strong> Eski .bak, .txt bakım log dosyalarını siler.</li>
+                <li>→ <strong>Veritabanı Sıkıştırma (Shrink):</strong> DB dosyasını küçültür. İndeks bozulmasına yol açar → İndeks Yenileme görevinden ÖNCE yapılmalı.</li>
+              </ul>
+            </li>
+            <li><strong>Parçalanma (Fragmentation):</strong> Veri değiştikçe blokların sırasının bozulması → performans düşüşü. Çözüm: Kümelenmiş indeks yenileme (Rebuild Index Task).</li>
+            <li>Bakım planında <strong>OLMAYAN</strong> görevler: Kullanıcı yetkilendirme politikaları, güvenlik açıkları denetleme.</li>
+          </ul>
+          <div class="sinav-notu">Bakım planında OLMAYAN → "Kullanıcı yetkilendirme politikaları" (2024-25: D) ve "Güvenlik açıkları denetleme" (2023-24: C). DBCC CHECKDB → tutarlılık (2023-24: D). Shrink → indeks yenilemeden ÖNCE. Parçalanma → indeks yenileme ile çözülür.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ÜNİTE 8: DAĞINIK VERİTABANI SİSTEMLERİ -->
+<div class="page" id="page-unite8">
+  <div class="page-header">
+    <div class="page-title">Ünite 8 — Dağınık Veritabanı Sistemleri: NoSQL ve Bulut Bilişim</div>
+    <div class="page-desc">Bulut Erişim Modelleri · IaaS/PaaS/SaaS · NoSQL Türleri · MongoDB · Google BigQuery · CAP Teoremi</div>
+  </div>
+  <div style="padding:28px;">
+    <div class="grid g2">
+      <div>
+        <div class="unit-header">
+          <div class="unit-number" style="background:var(--teal);">8a</div>
+          <div><div style="font-size:15px;font-weight:700;">Bulut Bilişim</div><div style="font-size:12px;color:var(--text3);">Her yıl 2-3 soru — KRİTİK!</div></div>
+        </div>
+        <div class="topic-card" style="border-color:var(--teal);">
+          <div class="topic-title">Bulut Bilişim Nedir? <span class="badge badge-amber">Sınavda Çıkar</span></div>
+          <ul class="topic-items">
+            <li><strong>Bulut Bilişim:</strong> Tek yerel sunucu yerine birden fazla cihazın kaynaklarını kullanarak internet üzerinden hesaplama yapma. İnternet tabanlı hesaplama.</li>
+            <li>Dinamik olarak ölçeklendirilebilen yapılar. Ürün değil, <strong>hizmet</strong>.</li>
+            <li>Temelleri 1950'lere dayanır (anaçatı bilgisayar paylaşımı). Fikir 1969'da <strong>Leonard Kleinrock</strong> tarafından öne sürüldü.</li>
+            <li><strong>Anaçatı Bilgisayar (Mainframe):</strong> Yüzlerce kullanıcıya aynı anda farklı hizmetler veren güçlü ve pahalı bilgisayarlar. 1950'lerde terminaller zayıftı, işlem gücü mainframe'de.</li>
+            <li>Buluttaki "bulut" kelimesi → <strong>internet ortamını</strong> kasteder</li>
+            <li>Kullandığın kadar öde modeli veya ücretsiz kullanım</li>
+          </ul>
+          <div class="sinav-notu">Bulut bilişim = internet üzerinden hizmet. Ürün değil HİZMET. "bulut" kelimesi → internet. Leonard Kleinrock (1969). Anaçatı bilgisayar = mainframe. Kullandığın kadar öde.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--red);">
+          <div class="topic-title">Bulut Erişim Modelleri (Türleri) <span class="badge badge-red">Her Yıl Çıkıyor</span></div>
+          <ul class="topic-items">
+            <li><strong>Genel Bulut (Public Cloud):</strong> Herkese açık, internet üzerinden erişim, kullandığın kadar öde veya ücretsiz. Örnekler: Amazon EC2, Google AppEngine, Dropbox.</li>
+            <li><strong>Topluluk Bulut (Community Cloud):</strong> Ortak ihtiyaçları olan organizasyonların altyapılarını birbirini paylaştığı yapı.</li>
+            <li><strong>Özel Bulut (Private Cloud):</strong> Sadece tek bir organizasyon için. <strong>Dış dünyayla bağlantısı yok</strong>. Hassas verilerin güvenli paylaşımı.</li>
+            <li><strong>Karma Bulut (Hybrid Cloud):</strong> En az iki bulut türünün birleşimi. Hem hassas verileri güvenle hem bazı hizmetleri dışarıya sunabilir.</li>
+          </ul>
+          <div class="sinav-notu">Dış dünya bağlantısı yok → ÖZEL BULUT. 2024-25: C, 2022: C — Her yıl aynı soru! Karma = özel + genel birlikte. Topluluk = ortak amaçlı organizasyonlar. Genel = herkese açık.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--amber);">
+          <div class="topic-title">Bulut Hizmet Modelleri <span class="badge badge-amber">Sınavda Çıkar</span></div>
+          <ul class="topic-items">
+            <li><strong>IaaS (Infrastructure as a Service — Hizmet olarak Altyapı):</strong> Fiziksel kaynaklar: dosya saklama, hesaplama, işletim sistemi sanallaştırma. Ölçeklendirilebilir. Örnekler: Amazon EC2, Amazon Web Services, BlueLock, PrimaCloud.</li>
+            <li><strong>PaaS (Platform as a Service — Hizmet olarak Platform):</strong> Yazılım geliştirme ve dağıtım platformu. Geliştiriciler için. Örnekler: Microsoft Azure, Google App Engine, Heroku, IBM Bluemix, Red Hat OpenShift.</li>
+            <li><strong>SaaS (Software as a Service — Hizmet olarak Yazılım):</strong> Hazır yazılımların kiralama yöntemiyle son kullanıcıya sunulması. Web tarayıcısından erişim. Örnekler: Salesforce, Google Apps, Microsoft Office Online, Cisco WebEx, TTNET Bulutu.</li>
+          </ul>
+          <div class="sinav-notu">Yazılım kiralama = SaaS. 2024-25: B (SaaS). IaaS = altyapı (Amazon EC2). PaaS = platform (Azure, App Engine). Amazon web servisleri = IaaS. Her üç modelde kullandığın kadar öde.</div>
+        </div>
+      </div>
+      <div>
+        <div class="unit-header">
+          <div class="unit-number" style="background:var(--amber);">8b</div>
+          <div><div style="font-size:15px;font-weight:700;">NoSQL Veritabanı Yapıları</div><div style="font-size:12px;color:var(--text3);">Her yıl 2-3 soru — KRİTİK!</div></div>
+        </div>
+        <div class="topic-card" style="border-color:var(--amber);">
+          <div class="topic-title">NoSQL Nedir ve CAP Teoremi <span class="badge badge-red">Her Yıl Çıkıyor</span></div>
+          <ul class="topic-items">
+            <li><strong>NoSQL:</strong> İnternete yüklenen büyük veriyi depolamak için ortaya çıkmış yatay ölçeklendirilebilen veritabanı sistemleri. "Not Only SQL" olarak da bilinir. İlk 1998'de kavram ortaya atıldı.</li>
+            <li><strong>Özellikleri:</strong> Şema Bağımsız, satır yerine belge/ilişki tüm içeriği içerir, standart sunucularla çalışır (yatay ölçekleme), dağıtık yapılandırılabilir, daha büyük veri saklayabilir</li>
+            <li><strong>İlişkisel DB Avantajları:</strong> ACID uyumu, şema zorunluluğu, gerçek zamanlı sorgu, JOIN/GROUP BY işlemleri</li>
+            <li><strong>CAP (Brewer) Teoremi (1998):</strong> Dağıtık sistemler aynı anda Tutarlılık (Consistency), Ulaşılabilirlik (Availability), Bölünebilme Toleransı (Partition Tolerance) özelliklerine sahip OLAMAZ — en fazla 2'si birlikte bulunabilir.</li>
+          </ul>
+          <div class="sinav-notu">Yatay ölçeklenebilen büyük veri sistemi → NoSQL. 2024-25: D. CAP = BREWER teoremi (1998). Aynı anda 3'ü → MÜMKÜN DEĞİL. NoSQL'de hareket kavramı yoktur, ACID kurallarına uymayabilir.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--teal);">
+          <div class="topic-title">NoSQL Özellikleri — Avantaj ve Dezavantajlar</div>
+          <ul class="topic-items">
+            <li><strong>NoSQL AVANTAJLARI (İlişkisel DB'ye göre):</strong> Şema bağımsız, yatay ölçekleme (standart sunucu), dağıtık yapılandırma, daha büyük veri saklayabilir, esnek belge yapısı</li>
+            <li><strong>İlişkisel DB AVANTAJLARI (NoSQL'e göre):</strong> ACID tam uyumu, şema zorunluluğu (veri bütünlüğü), gerçek zamanlı sorgu, JOIN ve GROUP BY gibi karmaşık sorgular, matür SQL standardı</li>
+            <li><strong>NoSQL için geçerli kullanım senaryosu → Büyük veri üzerinde sorgu yapılması.</strong></li>
+            <li><strong>BASE modeli:</strong> NoSQL sistemlerin benimsediği model. Basically Available, Soft state, Eventually consistent. ACID'in tam tersi yaklaşım.</li>
+            <li>NoSQL veritabanı ürünlerine örnek → MongoDB, CouchDB, Neo4j, Cassandra, Redis, HBase, Hadoop</li>
+            <li>❌ <strong>MySQL → NoSQL değil, ilişkisel veritabanı!</strong></li>
+          </ul>
+          <div class="sinav-notu">MySQL → NoSQL değil (ilişkisel DB). 2024-25 cevap: A. NoSQL neden kullanılır? → Büyük veri sorgusu. Veri bütünlüğü kritikse → ilişkisel DB. BASE = NoSQL'in ACID'e alternatifi. NoSQL açık kaynak değildir denilemez — çoğu açık kaynak.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--purple);">
+          <div class="topic-title">NoSQL Türleri Detayı <span class="badge badge-red">Her Yıl Çıkıyor</span></div>
+          <ul class="topic-items">
+            <li><strong>Çizge Tabanlı (Graph):</strong> Veriler düğüm + ilişki şeklinde. Sosyal ağlar, öneri motorları, mekânsal veri. BFS algoritması. Ürünler: Neo4J, ArangoDB, FlockDB, HyperGraphDB, Trinity. Facebook Graph Search örneği.</li>
+            <li><strong>Anahtar-Değer Tabanlı (Key-Value):</strong> Veri anahtar+değer çifti olarak kaydedilir. Sorgular anahtar üzerinden. Kullanıcı oturum, sipariş gibi şema bağımsız veriler. Anahtar üzerinde sorgulama yüksek maliyetli → Google BigTable ile çözüldü. Ürünler: Redis, Riak, Amazon DynamoDB.</li>
+            <li><strong>Sütun Tabanlı (Column Family):</strong> Veriler satır değil sütunlarda gruplanmış hücreler şeklinde. Veri modeli: Sütun Ailesi, Anahtar, Anahtar Alanı, Sütun, Küme. İçerik yönetim sistemleri, sosyal medya, işlem analizi. Ürünler: Cassandra, Apache Hadoop HBase.</li>
+            <li><strong>Belge Tabanlı (Document):</strong> Belgeler yönetilir; iç içe geçmiş belgeler arasında ilişki kolaydır. MongoDB: Veritabanı → Koleksiyon → Belge (JSON/BSON/XML). E-ticaret, blog, içerik yönetim. Ürünler: MongoDB, CouchDB.</li>
+            <li>❌ <strong>İlişkisel tabanlı → NoSQL türü DEĞİL!</strong></li>
+          </ul>
+          <div class="sinav-notu">İlişkisel tabanlı → NoSQL türü DEĞİL (2023-24: A). Cassandra → SÜTUN. MongoDB → BELGE. Neo4j → ÇİZGE. Redis → ANAHTAR-DEĞER. Cassandra veri modeli: Sütun Ailesi + Anahtar + Anahtar Alanı + Küme (2022 soru cevap: E → Index yok).</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--green);">
+          <div class="topic-title">MongoDB Detayı <span class="badge badge-red">Her Yıl Çıkıyor</span></div>
+          <ul class="topic-items">
+            <li><strong>MongoDB:</strong> Belge tabanlı NoSQL veritabanı. Temel ilgi alanı belgelerin yönetimi.</li>
+            <li>Belgeler → <strong>JSON / BSON (Binary JSON) / XML formatında</strong> saklanır</li>
+            <li>Belgeler → <strong>Koleksiyonlar</strong> içinde gruplanır (tablo karşılığı)</li>
+            <li>Koleksiyonlar → Veritabanı içinde fiziksel olarak barındırılır</li>
+            <li>İlişkisel DB karşılığı: Tablo → Koleksiyon, Satır → Belge</li>
+            <li>Esnek şema — her belgede farklı alanlar olabilir, migration gerekmez</li>
+            <li>db.koleksiyon.insert([{alan1: 'değer1', alan2: 'değer2'}, {...}]) → belge ekleme</li>
+          </ul>
+          <div class="sinav-notu">MongoDB belge grupları → KOLEKSİYON. 2024-25: D. Belge formatı → JSON/BSON. 2023-24: D (JSON), 2022: D (JSON). Her yıl soruluyor! Koleksiyon = tablo, Belge = satır.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--accent);">
+          <div class="topic-title">Google BigQuery Detayı <span class="badge badge-amber">Sınavda Çıkar</span></div>
+          <ul class="topic-items">
+            <li><strong>BigQuery:</strong> Google'ın 2012'de başlattığı büyük veri analiz platformu. Dremel altyapısı kullanır (MapReduce'den daha hızlı).</li>
+            <li><strong>Hiyerarşi (En üstten alta):</strong> Projeler → Veri Kümeleri/Blokları (Dataset) → Tablolar → Sütunlar</li>
+            <li><strong>En üst düzey bileşen → Projeler</strong></li>
+            <li><strong>4 Temel Bileşen:</strong> Projeler, Veri Blokları, Tablolar, İşler (Jobs — asenkron çalışır: yükleme, dışa aktarma, analiz)</li>
+            <li>❌ <strong>REST API → BigQuery bileşeni DEĞİL</strong> (erişim yöntemi, bileşen değil)</li>
+            <li>❌ <strong>Sunucu Yönetim Paneli → BigQuery bileşeni DEĞİL</strong> (sunucusuz mimari)</li>
+            <li>❌ <strong>Sayfalar → BigQuery bileşeni DEĞİL</strong></li>
+            <li>Standart SQL kullanır. Ücretsiz veya kullandığın kadar öde.</li>
+            <li>Örnek veri bloğu: publicdata:samples → 7 tablo (gsod 16GB/114M satır, Wikipedia 35.7GB/313M satır, natality 21.9GB/137M satır, Shakespeare, github_nested, github_timeline, trigrams)</li>
+            <li>Veri indirme: Download as CSV → Excel'e Veri → Metinden sihirbazı ile aktarma</li>
+          </ul>
+          <div class="sinav-notu">BigQuery bileşeni DEĞİL → REST API (2024-25: B soru). Sunucu Yönetim Paneli bileşen değil (2024-25: E). En üst → Projeler (2023-24: E). Sayfalar bileşen DEĞİL (2022: A). Dremel = BigQuery motoru.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--red);">
+          <div class="topic-title">Veritabanı Kümeleme ve Felaket Çözümleri</div>
+          <ul class="topic-items">
+            <li><strong>Veritabanı Kümeleme (Clustering):</strong> İki veya daha fazla bağımsız sunucunun birbirleriyle iletişim kurarak tek bir sistem gibi çalışması. Bir sunucu çökerse diğeri devam eder. Yüksek erişilebilirlik + yük dengeleme.</li>
+            <li><strong>Felaket Çözüm Yaklaşımları:</strong> Veritabanı Kümeleme, Veri Yedekleme, Replikasyon/İkizleme</li>
+            <li><strong>Sunucu Barındırma:</strong> Hizmet veren merkezde sunucu kopyası tutulur</li>
+            <li><strong>Sunucu Kiralama:</strong> Sanal sunucular kiralanır, sistem kopyası üzerinde tutulur</li>
+            <li><strong>Depolama Tabanlı:</strong> Veri depolama hizmeti veren merkezde veri kopyası tutulur</li>
+          </ul>
+          <div class="sinav-notu">Bağımsız sunucular tek sistem = VERİTABANI KÜMELEMESİ. 2022: E (Veritabanı kümeleme). Yük dengeleme + yüksek erişilebilirlik. İkizleme = veri kopyalama, kümeleme = sunucu işbirliği.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ÇIKMIŞ SORULAR -->
+<div class="page" id="page-cikmisSorular">
+  <div class="page-header">
+    <div class="page-title">Çıkmış Sorular</div>
+    <div class="page-desc">3 yılın gerçek sınav soruları — yanlış cevaba tıklayınca açıklama görürsün</div>
+  </div>
+  <div style="padding:28px;" id="cikmis-main">
+    <!-- YIL SEÇİCİ EKRAN -->
+    <div id="cikmis-yil-secici" style="display:flex;flex-direction:column;align-items:center;padding:20px 0;">
+      <div style="font-size:15px;color:var(--text2);margin-bottom:32px;font-weight:500;">Hangi yılın sınavını çözmek istiyorsun?</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:720px;width:100%;">
+        <div class="cikmis-yil-card" onclick="selectCikmisSorularYil('2025')" data-yil="2025">
+          <div class="cikmis-yil-icon">📋</div>
+          <div class="cikmis-yil-title">2024–2025</div>
+          <div class="cikmis-yil-sub">Bahar Dönemi</div>
+          <div class="cikmis-yil-badge" style="background:rgba(248,113,113,0.18);color:#f87171;border:1px solid rgba(248,113,113,0.35);">20 Soru</div>
+        </div>
+        <div class="cikmis-yil-card" onclick="selectCikmisSorularYil('2024')" data-yil="2024">
+          <div class="cikmis-yil-icon">📋</div>
+          <div class="cikmis-yil-title">2023–2024</div>
+          <div class="cikmis-yil-sub">Bahar Dönemi</div>
+          <div class="cikmis-yil-badge" style="background:rgba(251,191,36,0.18);color:#fbbf24;border:1px solid rgba(251,191,36,0.35);">20 Soru</div>
+        </div>
+        <div class="cikmis-yil-card" onclick="selectCikmisSorularYil('2022')" data-yil="2022">
+          <div class="cikmis-yil-icon">📋</div>
+          <div class="cikmis-yil-title">2021–2022</div>
+          <div class="cikmis-yil-sub">Bahar Dönemi</div>
+          <div class="cikmis-yil-badge" style="background:rgba(108,143,255,0.18);color:#6c8fff;border:1px solid rgba(108,143,255,0.35);">20 Soru</div>
+        </div>
+      </div>
+    </div>
+    <!-- SORULAR EKRANI -->
+    <div id="cikmis-sorular-ekrani" style="display:none;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+        <button class="btn btn-ghost btn-sm" onclick="backCikmisYilSecici()">← Geri</button>
+        <span id="cikmis-sorular-baslik" style="font-size:14px;font-weight:600;color:var(--text2);"></span>
+      </div>
+      <div id="cikmis-container"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SINAV MODU -->
+<div class="page" id="page-sinavModu">
+  <div class="page-header">
+    <div class="page-title">Sınav Modu</div>
+    <div class="page-desc">20 soruluk zamanlı sınav — gerçek AÖF sınav simülasyonu</div>
+  </div>
+  <div style="padding:28px;" id="sinav-container">
+    <div style="text-align:center;padding:60px 20px;">
+      <div style="font-size:60px;margin-bottom:16px;">⏱️</div>
+      <div style="font-size:20px;font-weight:700;margin-bottom:8px;">Sınav Modu</div>
+      <div style="font-size:14px;color:var(--text2);margin-bottom:32px;">20 soru · 30 dakika · Karışık</div>
+      <div class="grid g3" style="max-width:500px;margin:0 auto 32px;">
+        <div class="stat"><div class="stat-val" style="color:var(--accent);font-size:24px;">20</div><div class="stat-label">Soru</div></div>
+        <div class="stat"><div class="stat-val" style="color:var(--amber);font-size:24px;">30</div><div class="stat-label">Dakika</div></div>
+        <div class="stat"><div class="stat-val" style="color:var(--green);font-size:24px;">100</div><div class="stat-label">Puan</div></div>
+      </div>
+      <button class="btn btn-primary" onclick="startSinav()" style="font-size:16px;padding:14px 40px;">Sınavı Başlat</button>
+    </div>
+  </div>
+</div>
+
+<!-- TAHMİNİ SORULAR -->
+<div class="page" id="page-tahmini">
+  <div class="page-header">
+    <div class="page-title">Tahmini Sorular</div>
+    <div class="page-desc">3 yıl analizi sonucu en olası 15 soru — çıkma ihtimali yüksek!</div>
+  </div>
+  <div style="padding:28px;" id="tahmini-container"></div>
+</div>
+
+<!-- HIZLI TEKRAR -->
+<div class="page" id="page-hizliTekrar">
+  <div class="page-header">
+    <div class="page-title">Hızlı Tekrar — Flashcard</div>
+    <div class="page-desc">Karta tıkla → cevabı gör · Biliyorum / Bilmiyorum ile takip et</div>
+  </div>
+  <div style="padding:28px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div style="font-size:13px;color:var(--text2);" id="fc-counter">Kart 1 / 30</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;" id="fc-dots"></div>
+    </div>
+    <div id="fc-card-area"></div>
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:16px;">
+      <button class="btn btn-ghost btn-sm" onclick="fcPrev()">← Önceki</button>
+      <button class="btn" style="background:var(--red);color:#fff;" onclick="fcMarkNo()">Bilmiyorum ✗</button>
+      <button class="btn" style="background:var(--green);color:#fff;" onclick="fcMarkOk()">Biliyorum ✓</button>
+      <button class="btn btn-ghost btn-sm" onclick="fcNext()">Sonraki →</button>
+    </div>
+  </div>
+</div>
+
+<!-- GELİŞİM TAKİBİ -->
+<div class="page" id="page-gelisim">
+  <div class="page-header">
+    <div class="page-title">Gelişim Takibi</div>
+    <div class="page-desc">Ünite bazlı başarı oranların ve zayıf konuların analizi</div>
+  </div>
+  <div style="padding:28px;" id="gelisim-container"></div>
+</div>
+
+<!-- ANALİZ -->
+<div class="page" id="page-analiz">
+  <div class="page-header">
+    <div class="page-title">Soru Analizi</div>
+    <div class="page-desc">3 yıllık çıkmış sorulardan çıkarılan konu dağılımı ve soru tipi analizi</div>
+  </div>
+  <div style="padding:28px;">
+    <div class="grid g2">
+      <div class="card">
+        <div style="font-size:13px;font-weight:700;margin-bottom:16px;">🔥 Konu Isı Haritası</div>
+        <div id="analiz-list"></div>
+      </div>
+      <div class="card">
+        <div style="font-size:13px;font-weight:700;margin-bottom:16px;">📊 Soru Tipi Dağılımı</div>
+        <div id="tip-list"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <div style="font-size:13px;font-weight:700;margin-bottom:16px;">📚 Ünite Bazlı Soru Dağılımı</div>
+      <div id="unite-dist"></div>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+// ========== VERİ ==========
+const allQuestions = [
+  // 2024-25 SORULARI
+  {id:1,yil:'2025',unite:1,soru:'Microsoft ve Sysbase veritabanları için geliştirilen, özelleşmiş veritabanı programlama dili aşağıdakilerden hangisidir?',secenekler:['API','T-SQL','ODBC','JDBC','PL/SQL'],dogru:1,aciklama:'T-SQL, Microsoft SQL Server ve Sybase için özelleştirilmiş SQL uzantısıdır. PL/SQL Oracle\'a aittir. API, ODBC, JDBC ise bağlantı arayüzleridir.'},
+  {id:2,yil:'2025',unite:1,soru:'SQL sorgularını esnek bir şekilde T-SQL programlama ortamında kullanmak mümkündür. Bu yöntemle hazırlanan sorgu değişkenleri aşağıdaki fonksiyonların hangisi ile çalıştırılır?',secenekler:['EXECUTE','CREATE','START','RUN','SELECT'],dogru:0,aciklama:'Dinamik SQL\'de sorgu bir string değişkenine atanır ve EXECUTE (veya EXEC) komutuyla çalıştırılır. CREATE, START, RUN, SELECT bu amaçla kullanılamaz.'},
+  {id:3,yil:'2025',unite:1,soru:'Veritabanı ve veritabanı nesneleri hakkında bilgi döndüren sistem fonksiyon grubu aşağıdakilerden hangisidir?',secenekler:['İmleç','Metaveri','Yapılandırma','Güvenlik','Kümeleme'],dogru:1,aciklama:'Metaveri fonksiyonları, veritabanı ve nesneleri hakkında (tablo adları, sütun bilgileri vs.) bilgi döndürür. Yapılandırma @@VERSION gibi sistem yapılandırmasını döndürür.'},
+  {id:4,yil:'2025',unite:4,soru:'Bir tablodaki bir sütuna ait değerlerin, başka bir tablonun belli bir sütunundan gelmesinin denetlenmesinin istendiği durumlarda kullanılan kısıtlayıcı aşağıdakilerden hangisidir?',secenekler:['Kontrol kısıtlayıcısı','Birincil alan kısıtlayıcı','Tekil alan kısıtlayıcısı','Varsayılan kısıtlayıcısı','Yabancı anahtar kısıtlayıcı'],dogru:4,aciklama:'Yabancı Anahtar (Foreign Key) kısıtlayıcısı, referansal bütünlüğü sağlar — bir tablodaki değerlerin başka tablonun belirli sütunundan gelmesini zorunlu kılar.'},
+  {id:5,yil:'2025',unite:5,soru:'Kilitlenme (deadlock) durumunu tespit eden ve gideren mekanizma aşağıdakilerden hangisidir?',secenekler:['Kilitlenme izleyicisi','Kilitleme yönetimi','İzolasyon seviyesi','Otomatik yedekleme','Güncelleme kilidi'],dogru:0,aciklama:'SQL Server\'ın Kilitlenme İzleyicisi (Lock Monitor), deadlock durumunu tespit eder, bir kurban seçer ve ROLLBACK uygulayarak kilitlemeyi çözer.'},
+  {id:6,yil:'2025',unite:5,soru:'MS SQL Server\'da açık hareket modunda, bir hata ile karşılaşılmaz ise değişikliklerin kalıcı hâle getirilmesi amacıyla kullanılan komut aşağıdakilerden hangisidir?',secenekler:['BEGIN TRANSACTION','ROLLBACK TRANSACTION','SAVE TRANSACTION','COMMIT TRANSACTION','END TRANSACTION'],dogru:3,aciklama:'COMMIT TRANSACTION komutu, hatasız tamamlanan bir hareketteki değişiklikleri veritabanına kalıcı olarak yazar. Hata varsa ROLLBACK kullanılır.'},
+  {id:7,yil:'2025',unite:5,soru:'Aşağıdaki kilit modlarından hangisi, kilitli kaynaklar üzerinde diğer işlemlerin okuma işlemine izin verirken, güncellemeleri engeller?',secenekler:['Güncelleme kilidi','Amaç kilidi','Paylaşılan kilit','Serbest kilit','Ayrıcalıklı kilit'],dogru:2,aciklama:'Paylaşılan Kilit (Shared Lock), SELECT işlemlerinde kullanılır. Diğer işlemlerin okuma yapmasına izin verir ama UPDATE/DELETE/INSERT gibi değişiklik işlemlerini engeller.'},
+  {id:8,yil:'2025',unite:5,soru:'Veritabanı yönetim sistemlerinde eş zamanlı erişimlerin neden olduğu başlıca problemlerden biri aşağıdakilerden hangisidir?',secenekler:['Veri sıkıştırma','Veri madenciliği','Erişim kontrolü','Veri yedekleme','Kayıp güncelleme'],dogru:4,aciklama:'Kayıp güncelleme, eş zamanlı erişimin en yaygın problemidir: iki işlem aynı veriyi okur, biri günceller, diğeri üzerine yazar ve ilk güncelleme kaybolur.'},
+  {id:9,yil:'2025',unite:6,soru:'SQL Server\'da bir kullanıcının daha önce verilmiş olan tüm yetkilerini iptal etmek için hangi komut kullanılır?',secenekler:['REVOKE ALL','DENY ALL','GRANT ALL','DROP PERMISSIONS','DELETE USER'],dogru:0,aciklama:'REVOKE ALL komutu, kullanıcıya önceden verilmiş tüm yetkileri geri alır. DENY belirli yetkileri engeller, GRANT ise yetki verir.'},
+  {id:10,yil:'2025',unite:6,soru:'SQL Server\'ın koklayıcılar kullanılarak tespit edilmesini ve haberleştiği ağ üzerindeki trafiğin izlenmesini engellemek için kullanılan sertifika aşağıdakilerden hangisidir?',secenekler:['DHCP','ARP','TCP','SSL','UDP'],dogru:3,aciklama:'SSL (Secure Sockets Layer) sertifikası, SQL Server\'ın ağ trafiğini şifreleyerek koklayıcılar (sniffers) ile izlenmesini engeller. Diğer seçenekler ağ protokolleridir.'},
+  {id:11,yil:'2025',unite:6,soru:'Aşağıdakilerden hangisi veritabanı güvenlik açıklarından biri olan veri güvenlik açıkları kategorisinde yer alır?',secenekler:['İzinsiz Kopyalama','Bilgi Sızdırma','Fiziksel Zararlar','Virüsler','Lisansız Kullanım'],dogru:1,aciklama:'Bilgi Sızdırma, veri güvenlik açıkları kategorisindedir. Virüsler yazılımsal, Fiziksel Zararlar fiziksel güvenlik açığıdır.'},
+  {id:12,yil:'2025',unite:6,soru:'SQL Server\'da veritabanı üzerinde tüm ayarlamaları yapabilme ve silebilme yetkisine sahip rol aşağıdakilerden hangisidir?',secenekler:['db_backupoperator','db_datawriter','db_owner','db_securityadmin','db_accessadmin'],dogru:2,aciklama:'db_owner rolü, veritabanı üzerinde tam yetkiye sahiptir — tüm ayarları yapabilir ve veritabanını silebilir.'},
+  {id:13,yil:'2025',unite:7,soru:'Aşağıdakilerden hangisi veritabanı bakım işlemleri kapsamında gerçekleştirilen görevlerden biri değildir?',secenekler:['İndekslerin yeniden yapılandırılması','Veritabanı yedekleme planlarının oluşturulması','İstatistiklerin güncellenmesi','Kullanıcı yetkilendirme politikalarının değiştirilmesi','Tutarlılık denetimleri ile veri kaybının en aza indirilmesi'],dogru:3,aciklama:'Kullanıcı yetkilendirme politikalarının değiştirilmesi, bakım planı görevi değil güvenlik yönetimi görevidir.'},
+  {id:14,yil:'2025',unite:7,soru:'Aşağıdakilerden hangisi veritabanlarının yedekten geri yükleme nedenlerinden biri değildir?',secenekler:['Felakete uğrayan veritabanını yerine koymak','Yanlış yapılan bir işlemi verinin önceki hâline ulaşarak onarmak','Test ortamı oluşturmak','Bir ikizleme kurgusunun kurulumunu yapabilmek','Verinin yeni hâline ulaşarak çeşitli araştırmalar yapmak'],dogru:4,aciklama:'Yedekten geri yükleme, verinin ESKİ haline ulaşmak içindir, yeni haline değil.'},
+  {id:15,yil:'2025',unite:7,soru:'MS SQL Server\'da "master" sistem veritabanının temel işlevi aşağıdakilerden hangisidir?',secenekler:['Tüm yapılandırma bilgilerini saklamak','Geçici işlemleri yönetmek','Hareket kayıtlarını tutmak','Kullanıcı veritabanlarını depolamak','SQL Agent görevlerini saklamak'],dogru:0,aciklama:'Master veritabanı; oturum açma bilgileri, veritabanı konumları, replikasyon ve ikizleme bilgileri dahil tüm sistem yapılandırmasını saklar.'},
+  {id:16,yil:'2025',unite:7,soru:'Verinin tamamının tek seferde elde edildiği MS SQL Server yedekleme çeşidi aşağıdakilerden hangisidir?',secenekler:['Hareket günlük yedekleme','Düzenli yedekleme','Tam yedekleme','Fark yedeklemesi','Son yedekleme'],dogru:2,aciklama:'Tam Yedekleme (Full Backup), veritabanındaki tüm veriyi tek seferde alır.'},
+  {id:17,yil:'2025',unite:8,soru:'Aşağıdakilerden hangisi Google BigQuery\'nin bileşenlerinden biri değildir?',secenekler:['İşler','Projeler','Veri blokları','Tablolar','Sunucu yönetim paneli'],dogru:4,aciklama:'BigQuery sunucusuz bir mimaridir — sunucu yönetim paneli bileşeni yoktur. Bileşenler: Projeler (en üst), Veri Kümeleri, Tablolar ve İşler (Jobs).'},
+  {id:18,yil:'2025',unite:8,soru:'MongoDB belgelerinin kayıtlı olduğu gruplara ne ad verilir?',secenekler:['Anahtar','Çizge','Sütun','Koleksiyon','Veritabanı'],dogru:3,aciklama:'MongoDB\'de belgeler Koleksiyonlar içinde saklanır. Koleksiyon, ilişkisel veritabanındaki tabloya karşılık gelir.'},
+  {id:19,yil:'2025',unite:8,soru:'Belirli bir amaç için geliştirilmiş yazılımların son kullanıcıya kiralama yöntemi ile sunulmasını sağlayan bulut bilişim hizmet modeli hangisidir?',secenekler:['Hizmet olarak veritabanı (DBaaS)','Hizmet olarak yazılım (SaaS)','Hizmet olarak depolama (STaaS)','Hizmet olarak altyapı (IaaS)','Hizmet olarak platform (PaaS)'],dogru:1,aciklama:'SaaS (Software as a Service), hazır yazılımların kiralama yöntemiyle kullanıcıya sunulduğu modeldir.'},
+  {id:20,yil:'2025',unite:8,soru:'Dış dünya ile bağlantısı olmayan, sadece kendi kullanımı için sunucu altyapısı kurmak isteyen bir şirket aşağıdaki bulut yapılarından hangisini seçmelidir?',secenekler:['Tekil bulut','Karma bulut','Özel bulut','Genel bulut','Topluluk bulut'],dogru:2,aciklama:'Özel Bulut (Private Cloud), yalnızca tek bir kuruluşun kullanımına ayrılmış, dış dünyayla izole edilmiş bulut yapısıdır.'},
+  // 2023-24 SORULARI
+  {id:21,yil:'2024',unite:1,soru:'"SELECT", "UPDATE" gibi komutların yer aldığı SQL komut türü aşağıdakilerden hangisidir?',secenekler:['DCL','COBOL','DML','Gömülü SQL','DDL'],dogru:2,aciklama:'DML (Data Manipulation Language), veri üzerinde işlem yapan komutları içerir: SELECT, INSERT, UPDATE, DELETE.'},
+  {id:22,yil:'2024',unite:1,soru:'T-SQL dilinde yerel değişken isimleri aşağıdakilerden hangisi ile başlamalıdır?',secenekler:['@','&','$','#','-'],dogru:0,aciklama:'T-SQL\'de yerel (kullanıcı tanımlı) değişkenler @ ile başlar. @@ çift at işareti ise sistem değişkenleri içindir.'},
+  {id:23,yil:'2024',unite:1,soru:'Veritabanı ve veritabanı nesneleri hakkında bilgi döndüren sistem fonksiyon grubu aşağıdakilerden hangisidir?',secenekler:['İmleç','Metaveri','Güvenlik','Yapılandırma','Kümeleme'],dogru:1,aciklama:'Metaveri fonksiyonları, veritabanı ve nesneleri (tablolar, kolonlar, prosedürler) hakkında yapısal bilgi döndürür.'},
+  {id:24,yil:'2024',unite:4,soru:'Kontrol kısıtlayıcısı hangi tanımlanabilir veri bütünlüğü esası için kullanılır?',secenekler:['Referansal bütünlük','Satır bütünlüğü','İndeks bütünlüğü','Anahtar bütünlüğü','Sütun bütünlüğü'],dogru:4,aciklama:'CHECK (Kontrol) kısıtlayıcısı, bir sütuna girilecek değerlerin belirli koşulları sağlamasını zorunlu kılarak sütun bütünlüğünü sağlar.'},
+  {id:25,yil:'2024',unite:5,soru:'Kilitli kaynaklar üzerinde, diğer işlemlerin okuma işlemi yapmasına izin verilirken, değişiklik yapılmasına izin verilmeyen MS SQL Veritabanı sunucusu kilit modu aşağıdakilerden hangisidir?',secenekler:['Ayrıcalıklı','Güncelleştirme','Paylaşılan','Amaç Güncelleştirme','Şema Kararlılık'],dogru:2,aciklama:'Paylaşılan Kilit (Shared Lock), okuma işlemlerine izin verirken yazma/güncelleme işlemlerini engeller.'},
+  {id:26,yil:'2024',unite:5,soru:'T-SQL\'de açık hareket başlangıç noktasını belirleyen komut aşağıdakilerden hangisidir?',secenekler:['FETCH TRANSACTION','ROLLBACK TRANSACTION','COMMIT TRANSACTION','SAVE TRANSACTION','BEGIN TRANSACTION'],dogru:4,aciklama:'BEGIN TRANSACTION komutu, açık bir hareketin başlangıç noktasını tanımlar.'},
+  {id:27,yil:'2024',unite:5,soru:'İlişkisel veritabanlarında temel olarak daha küçük parçalara bölünemeyen en küçük işlem grubuna ne ad verilir?',secenekler:['Hareket','Otokayıt','Eş zamanlılık','Bölünmezlik','İzolasyon'],dogru:0,aciklama:'Hareket (Transaction), bölünemeyen en küçük işlem grubudur — ya tamamen gerçekleşir ya da hiç gerçekleşmez.'},
+  {id:28,yil:'2024',unite:5,soru:'Bir veri ya da veri grubuna bir hareket içinde birden fazla kez erişim gerçekleştirilebilir. Bu erişimler arasında eş zamanlı olarak başka bir hareket güncelleme veya silme işlemi gerçekleştirebilmektedir. Bu durumda ortaya çıkan eş zamanlılık problemi nedir?',secenekler:['Kayıp güncelleme','Çift okuma','Tekrarlanamayan okuma','Hayalet okuma','Kirli okuma'],dogru:2,aciklama:'Tekrarlanamayan okuma: Aynı sorgu iki kez çalıştırıldığında, aradaki sürede başka bir hareketin güncelleme/silmesi nedeniyle farklı sonuç döndürmesi durumudur.'},
+  {id:29,yil:'2024',unite:6,soru:'User1 kullanıcısının Urunler tablosunda UPDATE yetkisi geri alınmak isteniyor ise aşağıdaki komutlardan hangisi çalıştırılmalıdır?',secenekler:['REVOKE UPDATE ON Urunler','REVOKE UPDATE ON Urunler TO User1','REVOKE Urunler UPDATE TO User1','REVOKE UPDATE TO User1','REVOKE ON Urunler TO User1'],dogru:1,aciklama:'Doğru sözdizimi: REVOKE UPDATE ON Urunler TO User1. Tablo adı ON ile, kullanıcı TO ile belirtilir.'},
+  {id:30,yil:'2024',unite:6,soru:'SQL Server veritabanı yönetim sisteminde veritabanının tüm ayarlarını yapabilme ve silebilme yetkisi veren veritabanı rolü aşağıdakilerden hangisidir?',secenekler:['db_owner','db_accessadmin','db_datawriter','db_securityadmin','db_backupoperator'],dogru:0,aciklama:'db_owner, en kapsamlı veritabanı rolüdür. Tüm veritabanı nesnelerini oluşturabilir, değiştirebilir, silebilir ve veritabanını kaldırabilir.'},
+  {id:31,yil:'2024',unite:6,soru:'SQL Server\'da rol_bilgisayar adlı yeni bir veritabanı rolünü db_owner yetkisine sahip olacak şekilde oluşturmak için hangi komut çalıştırılmalıdır?',secenekler:['CREATE ROLE rol_bilgisayar db_owner','GRANT ROLE rol_bilgisayar AUTHORIZATION db_owner','GRANT rol_bilgisayar AUTHORIZATION db_owner','CREATE ROLE rol_bilgisayar AUTHORIZATION db_owner','CREATE rol_bilgisayar AUTHORIZATION db_owner'],dogru:3,aciklama:'Doğru sözdizimi: CREATE ROLE rol_adi AUTHORIZATION sahip. AUTHORIZATION ile rolün sahibini belirtmiş oluruz.'},
+  {id:32,yil:'2024',unite:6,soru:'SQL Server\'daki kullanıcıların hesaplarına ne ad verilmektedir?',secenekler:['External Resources','Logins','Credentials','Audits','View'],dogru:1,aciklama:'SQL Server\'da kullanıcı hesaplarına "Logins" (Oturum Açma) adı verilir.'},
+  {id:33,yil:'2024',unite:7,soru:'Verinin tamamının tek seferde elde edildiği MS SQL Server yedekleme çeşidi aşağıdakilerden hangisidir?',secenekler:['Fark yedeklemesi','Hareket günlük yedekleme','Son yedekleme','Düzenli yedekleme','Tam yedekleme'],dogru:4,aciklama:'Tam Yedekleme (Full Backup), tüm veritabanını tek seferde yedekler.'},
+  {id:34,yil:'2024',unite:7,soru:'Veritabanı bütünlüğünü kontrol eden görev için hangi yordam çalıştırılır?',secenekler:['DBCC WHO','DBCC STATISTICS','DBCC VeritabanıAdı','DBCC CHECKDB','DBCC DATABASE'],dogru:3,aciklama:'DBCC CHECKDB, veritabanının fiziksel ve mantıksal bütünlüğünü kontrol eder.'},
+  {id:35,yil:'2024',unite:7,soru:'MS SQL Server\'ın tüm yapılandırma bilgilerinin yer aldığı veritabanı aşağıdakilerden hangisidir?',secenekler:['Tempdb','Master','Msdb','Model','Logdb'],dogru:1,aciklama:'Master veritabanı; sunucu yapılandırması, oturum açma bilgileri, bağlı sunucular, tüm veritabanlarının konumları ve meta verilerini içerir.'},
+  {id:36,yil:'2024',unite:7,soru:'Aşağıdakilerden hangisi MS SQL veritabanı yönetim sisteminin desteklediği bakım planındaki görevlerden biri değildir?',secenekler:['Veritabanı sıkıştırma','Tutarlılık kontrolü','Güvenlik açıklarını denetleme','İndeks bakımı','Yedekleme görevlerini planlama'],dogru:2,aciklama:'Güvenlik açığı denetimi, bakım planı görevi değildir — bu güvenlik yöneticisinin görevidir.'},
+  {id:37,yil:'2024',unite:8,soru:'Aşağıdakilerden hangisi NoSQL Veritabanı tiplerinden biri değildir?',secenekler:['İlişkisel tabanlı','Çizge tabanlı','Anahtar-değer tabanlı','Sütun tabanlı','Belge tabanlı'],dogru:0,aciklama:'İlişkisel tabanlı (Relational) veritabanları, NoSQL değil geleneksel SQL tabanlı veritabanı türüdür.'},
+  {id:38,yil:'2024',unite:8,soru:'MongoDB veritabanındaki her belge koleksiyon içerisinde aşağıda verilen format türlerinden hangisi ile saklanır?',secenekler:['JavaScript','GIT','CSS','JSON','HTML'],dogru:3,aciklama:'MongoDB\'de belgeler JSON (JavaScript Object Notation) formatında saklanır.'},
+  {id:39,yil:'2024',unite:8,soru:'Google BigQuery yapısı üzerinde en üst düzeydeki bileşen hangisidir?',secenekler:['Veri bloğu','Tablolar','Anahtarlar','İşler','Projeler'],dogru:4,aciklama:'BigQuery hiyerarşisinde en üst seviye Projeler\'dir. Projeler → Veri Kümeleri → Tablolar şeklinde devam eder.'},
+  {id:40,yil:'2024',unite:8,soru:'İnternete yüklenen ve gün geçtikçe artan bu veriyi depolayabilmek, yüksek sayıdaki kullanıcıların anlık taleplerine cevap vermek amacı ile ortaya çıkmış yatay olarak ölçeklendirilebilen veritabanı sistemlerine verilen genel isim aşağıdakilerden hangisidir?',secenekler:['MSSQL','İlişkisel veritabanı','ACID','NoSQL','SQL'],dogru:3,aciklama:'NoSQL, geleneksel ilişkisel veritabanlarının yetersiz kaldığı büyük ölçekli, dağıtık ve esnek veri ihtiyaçlarını karşılamak için tasarlanmış yatay ölçeklenebilen veritabanı sistemleridir.'},
+  // 2021-22 SORULARI
+  {id:41,yil:'2022',unite:1,soru:'MS SQL sorgu penceresinde üzerinde işlem yapılacak veritabanını belirtmek için ilk olarak hangi komutun yazılması gerekmektedir?',secenekler:['CREATE','USE','REVOKE','GRANT','ALTER'],dogru:1,aciklama:'USE komutu, çalışılacak veritabanını aktif yapmak için kullanılır.'},
+  {id:42,yil:'2022',unite:1,soru:'T-SQL programlamada hata denetimi yapılması durumunda ve hata oluşması ihtimalinde bir işlem yapılması gerektiği durumlarda hangi kod blokları kullanılır?',secenekler:['TRY CATCH','CURSOR FOR','IF ELSE','BEGIN END','CASE WHEN'],dogru:0,aciklama:'TRY...CATCH bloğu, T-SQL\'de hata yakalamak için kullanılır. TRY bloğundaki hata CATCH bloğuna düşer.'},
+  {id:43,yil:'2022',unite:1,soru:'Aşağıdaki sistem fonksiyonlarından hangisi yapılandırma fonksiyonları grubundadır?',secenekler:['Count','@@Total_Read','Avg','@@version','Log'],dogru:3,aciklama:'@@version, SQL Server sürüm bilgisini döndüren yapılandırma fonksiyonudur. @@Total_Read istatistik, Count/Avg kümeleme fonksiyonlarıdır.'},
+  {id:44,yil:'2022',unite:4,soru:'Belirli komut satırı (ALTER TABLE Bolumler ADD CONSTRAINT UNIQUE) hangi tür kısıtlayıcıyı oluşturmak için kullanılır?',secenekler:['Birincil alan kısıtlayıcı','Varsayılan kısıtlayıcısı','Kontrol kısıtlayıcısı','Yabancı anahtar kısıtlayıcı','Tekil alan kısıtlayıcısı'],dogru:4,aciklama:'UNIQUE anahtar kelimesi ile oluşturulan kısıtlayıcı, Tekil Alan Kısıtlayıcısıdır.'},
+  {id:45,yil:'2022',unite:5,soru:'Kullanıcıların kendilerinin başlatıp sonlandırdığı açık hareket bloklarında, bir hata ile karşılaşılmaz ise, değişikliklerin kalıcı hâle getirilmesi amacıyla kullanılan komut aşağıdakilerden hangisidir?',secenekler:['ROLLBACK TRANSACTION','COMMIT TRANSACTION','BEGIN TRANSACTION','SAVE TRANSACTION','SET IMPLICIT_TRANSACTIONS ON'],dogru:1,aciklama:'Hatasız tamamlanan açık harekette değişiklikleri kalıcı yapmak için COMMIT TRANSACTION kullanılır.'},
+  {id:46,yil:'2022',unite:5,soru:'MS SQL Server VTYS\'de kullanıcıların hareket bloklarını kendilerinin başlatıp sonlandırdığı hareket yönetim modu aşağıdakilerden hangisidir?',secenekler:['Otokayıt hareket','Örtük hareket','Açık hareket','Devamlı hareket','Kapalı hareket'],dogru:2,aciklama:'Açık Hareket modunda kullanıcı BEGIN TRANSACTION ile hareketi başlatır ve COMMIT veya ROLLBACK ile bitirir.'},
+  {id:47,yil:'2022',unite:5,soru:'Bir veri kaynağı üzerinde değişiklik gerçekleştiren hareket, Commit veya Rollback işlemini gerçekleştirmeden diğer hareketlerin bu veri kaynağına erişiminin engellendiği kilit modu aşağıdakilerden hangisidir?',secenekler:['Ayrıcalıklı Kilit Modu','Özel Kilit Modları','Paylaşılan Kilit Modu','Güncelleştirme Kilit Modu','Amaç Kilit Modu'],dogru:0,aciklama:'Ayrıcalıklı Kilit (Exclusive Lock), hareket tamamlanana (commit/rollback) kadar diğer hareketlerin aynı kaynağa erişimini engeller.'},
+  {id:48,yil:'2022',unite:5,soru:'"Ya hep ya hiç" mantığıyla çalışan ACID özelliği aşağıdakilerden hangisidir?',secenekler:['Sadelik','Tekillik','Devamlılık','Çoğulluk','Bölünmezlik'],dogru:4,aciklama:'Atomicity (Bölünmezlik/Atomiklik), ACID\'in "ya hep ya hiç" prensibidir.'},
+  {id:49,yil:'2022',unite:6,soru:'Var olan Windows kullanıcıları ve SQL Server hesapları için veritabanına erişim yetkisi verebilme işlemini yapabilen veritabanı rolü aşağıdakilerden hangisidir?',secenekler:['db_owner','db_securityadmin','db_denydatawriter','db_accessadmin','db_backupoperator'],dogru:3,aciklama:'db_accessadmin rolü, Windows ve SQL Server kullanıcıları ile gruplarının veritabanına erişimini ekleme veya kaldırma yetkisine sahiptir.'},
+  {id:50,yil:'2022',unite:6,soru:'Aşağıdakilerden hangisi yazılımsal güvenlik açıklarından biri değildir?',secenekler:['Truva Atları','Virüsler','Arka Kapılar','Solucanlar','Veri Değişikliği'],dogru:4,aciklama:'Veri Değişikliği, yazılımsal güvenlik açığı değil veri güvenlik açığı kategorisindedir.'},
+  {id:51,yil:'2022',unite:6,soru:'SQL Server\'da kullanıcıya kısıtlı erişim verme ve verilen erişimi kaldırma komutları aşağıdakilerin hangisinde sırasıyla ve doğru olarak verilmiştir?',secenekler:['GRANT - RESTRICT','REVOKE - DENY','GRANT - REVOKE','ACCESS - RESTRICT','REVOKE - GRANT'],dogru:2,aciklama:'GRANT yetki verir, REVOKE verilen yetkiyi geri alır. DENY ise yetki olup olmadığından bağımsız olarak erişimi açıkça reddeder.'},
+  {id:52,yil:'2022',unite:6,soru:"EXEC sp_addrolemember 'Yeni_Rol','Ali' Komutunun işlevi aşağıdakilerden hangisidir?",secenekler:['Yeni_Rol isimli rol Ali tarafından oluşturulur.','Ali isimli kullanıcıya Yeni_Rol isimli rolü atar.','Ali isimli kullanıcının yetkilerini Yeni_Rol adında yeni bir role dönüştürür.','Ali isimli kullanıcının Yeni_Rol isimli rollere ulaşması engellenir.','Ali isimli kullanıcının erişim yetkileri engellenir.'],dogru:1,aciklama:"sp_addrolemember saklı yordamı, bir kullanıcıyı belirtilen role ekler. Ali kullanıcısı Yeni_Rol rolünün üyesi yapılır."},
+  {id:53,yil:'2022',unite:7,soru:'Aşağıdakilerde hangisi bir veritabanının geri yükleme nedenlerinden biri değildir?',secenekler:['Veritabanı güvenliğini artırmak','Felakete uğrayan veritabanını yerine koymak','Yanlış yapılan bir işlemi, verinin önceki haline ulaşarak onarmak','Eski haline ulaşarak çeşitli araştırmalar yapmak','Bir ikizleme kurgusunun kurulumunu yapmak'],dogru:0,aciklama:'Veritabanı güvenliğini artırmak, yedekten geri yükleme nedeni değildir.'},
+  {id:54,yil:'2022',unite:7,soru:'İki ya da daha çok birbirinden bağımsız sunucunun aralarında iletişim kurulduktan sonra tek bir sistem gibi çalışarak, bir veya birden fazla uygulamayı çalıştırmasına olanak tanıyan çözüme verilen genel ad aşağıdakilerden hangisidir?',secenekler:['İkizleme','Kurtarma','Replikasyon','Veri yedekleme','Veritabanı kümeleme'],dogru:4,aciklama:'Veritabanı Kümeleme (Clustering), birden fazla bağımsız sunucunun tek bir sistem gibi çalışmasıdır.'},
+  {id:55,yil:'2022',unite:7,soru:'Genel sistem yapılandırması, oturum açma bilgileri, veritabanlarının konumları, diğer bağlı sunucular, replikasyon ve ikizleme işlemleri gibi MS SQL Server\'ın tüm yapılandırma bilgilerinin yer aldığı sistem veritabanı aşağıdakilerden hangisidir?',secenekler:['Tempdb','Model','Master','Msdb','Backup'],dogru:2,aciklama:'Master sistem veritabanı, SQL Server\'ın çalışması için gerekli tüm üst düzey bilgileri içerir.'},
+  {id:56,yil:'2022',unite:7,soru:'Verinin kendisinin değil, veride yapılan değişikliklerin kayıtlarının saklandığı yedekleme çeşidi aşağıdakilerden hangisidir?',secenekler:['Fark yedekleme','Hareket günlük yedekleme','Tam yedekleme','Son yedekleme','Artımlı yedekleme'],dogru:1,aciklama:'Hareket Günlük Yedekleme (Transaction Log Backup), veritabanının kendisini değil, gerçekleştirilen işlemlerin kayıtlarını yedekler.'},
+  {id:57,yil:'2022',unite:8,soru:'MongoDB veritabanında belgeler koleksiyonlar içerisinde aşağıdaki formatlardan hangisi ile saklanabilir?',secenekler:['ZIP','TXT','CSV','JSON','HTML'],dogru:3,aciklama:'MongoDB belgelerini JSON (ve dahili olarak BSON - Binary JSON) formatında saklar.'},
+  {id:58,yil:'2022',unite:8,soru:'Aşağıdakilerden hangisi Google BigQuery yapısı üzerindeki temel bileşenler arasında yer almaz?',secenekler:['Sayfalar','Projeler','Veri bloğu','Tablolar','İşler'],dogru:0,aciklama:'Sayfalar, BigQuery bileşeni değildir. BigQuery bileşenleri: Projeler, Veri Kümeleri, Tablolar ve İşler.'},
+  {id:59,yil:'2022',unite:8,soru:'İnternete yüklenen ve gün geçtikçe artan veriyi depolayabilmek, yüksek sayıdaki kullanıcıların anlık taleplerine cevap vermek amacı ile ortaya çıkmış yatay olarak ölçeklendirilebilen veritabanı sistemlerine verilen genel isim aşağıdakilerden hangisidir?',secenekler:['DB2','MYSQL','ACCESS','NoSQL','MS SQL'],dogru:3,aciklama:'NoSQL, ilişkisel veritabanlarının skalalanamadığı büyük veri problemlerini çözmek için tasarlanmış yatay ölçeklenebilen sistemler için kullanılan genel terimdir.'},
+  {id:60,yil:'2022',unite:8,soru:'Dış dünya ile bağlantısı olmayan, sadece kendi kullanımı için sunucu altyapısı kurmak isteyen bir şirket aşağıdaki bulut yapılarından hangisini seçmelidir?',secenekler:['Karma bulut','Tekil bulut','Özel bulut','Genel bulut','Topluluk bulut'],dogru:2,aciklama:'Özel Bulut (Private Cloud), yalnızca bir kuruluşun kullanımına özgü, dışarıdan erişilemeyen izole edilmiş bulut altyapısıdır.'}
+];
+
+const tahminiSorular = [
+  {soru:'T-SQL\'de saklı yordam (stored procedure) oluşturmak için hangi komut kullanılır?',secenekler:['MAKE PROCEDURE','CREATE PROCEDURE','BUILD PROCEDURE','NEW PROCEDURE','ADD PROCEDURE'],dogru:1,aciklama:'Saklı yordamlar CREATE PROCEDURE komutu ile oluşturulur. ALTER PROCEDURE ile değiştirilir, DROP PROCEDURE ile silinir.'},
+  {soru:'Aşağıdakilerden hangisi T-SQL\'de tetikleyici (trigger) türlerinden biri DEĞİLDİR?',secenekler:['AFTER trigger','INSTEAD OF trigger','BEFORE trigger','DML trigger','DDL trigger'],dogru:2,aciklama:'SQL Server\'da BEFORE trigger türü bulunmaz — INSTEAD OF trigger benzer işlevi görür.'},
+  {soru:'SQL Server\'da indeks türlerinden hangisi tüm tablonun fiziksel sırasını belirler?',secenekler:['Non-Clustered Index','Hash Index','Clustered Index','Full-Text Index','XML Index'],dogru:2,aciklama:'Clustered Index (Kümelenmiş İndeks), tablodaki satırların fiziksel sıralamasını belirler. Her tabloda yalnızca bir clustered index olabilir.'},
+  {soru:'Aşağıdaki kavramlardan hangisi NoSQL veritabanlarının avantajları arasında yer ALMAZ?',secenekler:['Yatay ölçeklenebilirlik','ACID tam uyumu','Esnek şema','Büyük veri desteği','Yüksek performans'],dogru:1,aciklama:'NoSQL veritabanlarının çoğu tam ACID uyumunu desteklemez — BASE modelini tercih eder.'},
+  {soru:'Google BigQuery\'de veri sorgulama için hangi dil kullanılır?',secenekler:['MongoDB Query Language','NoSQL API','Standard SQL','T-SQL','PL/SQL'],dogru:2,aciklama:'BigQuery, standart SQL lehçesini destekler. ANSI SQL uyumlu sorgular yazılabilir.'},
+  {soru:'Aşağıdakilerden hangisi veritabanı yedekleme stratejisinde en kritik adımdır?',secenekler:['Sadece tam yedekleme almak','Yedeklerin test ortamında geri yüklenerek doğrulanması','Yedekleri aynı sunucuda tutmak','Günde bir kez yedeklemek','Sadece log yedeklemesi almak'],dogru:1,aciklama:'Yedeklerin düzenli olarak test ortamında geri yüklenerek doğrulanması en kritik adımdır. Geri yüklenemeyen yedek işe yaramaz.'},
+  {soru:'MS SQL Server\'da hangi sistem veritabanı yeni kullanıcı veritabanları için şablon görevi görür?',secenekler:['Master','Tempdb','Msdb','Model','Resource'],dogru:3,aciklama:'Model veritabanı, her yeni oluşturulan kullanıcı veritabanı için şablondur. Model\'de yapılan değişiklikler sonraki tüm yeni veritabanlarını etkiler.'},
+  {soru:'Aşağıdakilerden hangisi bulut bilişimin temel özelliklerinden biri DEĞİLDİR?',secenekler:['İsteğe bağlı kendi kendine servis','Geniş ağ erişimi','Kaynak havuzu','Fiziksel donanım sahipliği zorunluluğu','Hızlı elastikiyet'],dogru:3,aciklama:'Bulut bilişimde kullanıcının fiziksel donanıma sahip olması gerekmez — aksine bu bulutun temel avantajıdır.'},
+  {soru:'Aşağıdakilerden hangisi bir veritabanı görünümünün (VIEW) özelliği DEĞİLDİR?',secenekler:['Sanal tablo olarak çalışır','Karmaşık sorguları basitleştirir','Güvenlik katmanı sağlayabilir','Kendi fiziksel depolama alanına sahiptir','Birden fazla tabloyu birleştirebilir'],dogru:3,aciklama:'VIEW\'lar fiziksel veri depolamaz — sanal tablolardır.'},
+  {soru:'T-SQL\'de hataları yakalayan ve hata kodunu döndüren fonksiyon aşağıdakilerden hangisidir?',secenekler:['GET_ERROR()','@@ERROR','ERROR_NUMBER()','CATCH_ERROR()','ERROR_CODE()'],dogru:2,aciklama:'ERROR_NUMBER() fonksiyonu, CATCH bloğunda yakalanan hatanın numarasını döndürür. @@ERROR ise son çalıştırılan DML ifadesinin hata kodunu verir (eski yöntem).'},
+  {soru:'Aşağıdakilerden hangisi şema (schema) kavramının doğru tanımıdır?',secenekler:['Veritabanının fiziksel depolama yapısı','Veritabanı nesnelerini mantıksal olarak gruplandıran kap','Yedekleme planı','Kullanıcı oturum bilgileri','Sunucu yapılandırması'],dogru:1,aciklama:'Şema (Schema), veritabanı nesnelerini (tablolar, görünümler, prosedürler vb.) mantıksal olarak gruplandıran kaptır.'},
+  {soru:'Aşağıdakilerden hangisi ACID özelliklerinden "Consistency" (Tutarlılık) ile ilgili doğru bir ifadedir?',secenekler:['İşlem ya tamamen gerçekleşir ya hiç gerçekleşmez','İşlem öncesi ve sonrası veritabanı geçerli bir durumda kalır','Eş zamanlı işlemler birbirini etkilemez','Commit sonrası değişiklikler kalıcıdır','Her işlem ayrı oturumda gerçekleşir'],dogru:1,aciklama:'Consistency (Tutarlılık), bir hareketin gerçekleşmesinin ardından veritabanının tutarlı kalmasını garantiler.'},
+  {soru:'Aşağıdakilerden hangisi MongoDB\'nin ilişkisel veritabanına göre bir avantajıdır?',secenekler:['Tam ACID desteği','Güçlü JOIN işlemleri','Esnek ve şemasız belge yapısı','Matür SQL standardı','Katı referansal bütünlük'],dogru:2,aciklama:'MongoDB\'nin en büyük avantajlarından biri esnek ve şemasız belge yapısıdır — her belge farklı alanlara sahip olabilir.'},
+  {soru:'Örtük hareket modunu aktif hale getiren T-SQL komutu aşağıdakilerden hangisidir?',secenekler:['BEGIN IMPLICIT','SET TRANSACTION ON','SET IMPLICIT_TRANSACTIONS ON','START IMPLICIT MODE','ENABLE IMPLICIT'],dogru:2,aciklama:'SET IMPLICIT_TRANSACTIONS ON komutu örtük hareket modunu aktifleştirir. Bu modda belirli SQL komutları çalışınca hareket otomatik başlar.'},
+  {soru:'Hareket günlük yedeklemesi (Transaction Log Backup) tek başına geri yükleme için yeterli midir?',secenekler:['Evet, her zaman yeterlidir','Hayır, önce tam yedek gerekir','Sadece küçük veritabanlarında yeterlidir','Fark yedeği varsa yeterlidir','Evet, ama sadece son yedeğe kadar'],dogru:1,aciklama:'Hareket günlük yedeği tek başına geri yükleme için yeterli değildir. Önce tam yedek, ardından fark yedeği (varsa), sonra hareket günlük yedekleri sırasıyla uygulanır.'}
+];
+
+const fcCards = [
+  {q:'T-SQL kimler tarafından geliştirildi?',a:'Microsoft ve Sybase — SQL Server ve Sybase veritabanları için özelleştirilmiş SQL uzantısı.'},
+  {q:'Yerel T-SQL değişkenleri hangi sembolle başlar?',a:'@ sembolü ile (örn: @sayi, @isim). Sistem değişkenleri @@ ile başlar (@@VERSION, @@ERROR).'},
+  {q:'Dinamik SQL nasıl çalıştırılır?',a:'Sorgu bir string değişkenine atanır, ardından EXECUTE (veya EXEC) komutuyla çalıştırılır.'},
+  {q:'Metaveri fonksiyonları ne işe yarar?',a:'Veritabanı ve nesneleri hakkında bilgi döndürür. Örn: OBJECT_ID(), COL_LENGTH().'},
+  {q:'TRY CATCH ne için kullanılır?',a:'T-SQL\'de hata yakalamak için. TRY bloğunda hata oluşunca CATCH bloğuna geçilir. ERROR_NUMBER() hata kodunu verir.'},
+  {q:'Yabancı Anahtar (Foreign Key) ne sağlar?',a:'Referansal bütünlük — bir tablonun değerlerinin başka tablonun belirli sütunundan gelmesini zorunlu kılar.'},
+  {q:'ACID\'in "A"sı ne anlama gelir?',a:'Atomicity (Bölünmezlik) — "Ya hep ya hiç" prensibi. Tüm işlemler gerçekleşir ya da hiçbiri gerçekleşmez.'},
+  {q:'BEGIN TRANSACTION ne yapar?',a:'Açık bir hareketin başlangıç noktasını tanımlar. Kullanıcı başlatır, COMMIT veya ROLLBACK ile bitirir.'},
+  {q:'COMMIT TRANSACTION ne zaman kullanılır?',a:'Hata yokken — değişiklikleri veritabanına kalıcı olarak yazar.'},
+  {q:'ROLLBACK TRANSACTION ne yapar?',a:'Hareket başından beri yapılan tüm değişiklikleri geri alır.'},
+  {q:'Paylaşılan Kilit (Shared Lock) nasıl çalışır?',a:'Okumaya izin verir, yazmayı/güncellemeyi engeller. SELECT ifadelerinde kullanılır. Okuma bitince serbest bırakılır.'},
+  {q:'Ayrıcalıklı Kilit (Exclusive Lock) nasıl çalışır?',a:'Hem okumayı hem yazmayı engeller. INSERT/UPDATE/DELETE işlemlerinde kullanılır. Hareket sonuna kadar tutulur.'},
+  {q:'Deadlock nedir?',a:'İki hareket birbirinin beklediği kaynakları kilitleyerek oluşan sonsuz bekleme durumu. Hata kodu: 1205.'},
+  {q:'Deadlock\'u kim çözer?',a:'Kilitlenme İzleyicisi (Lock Monitor) — her 5 saniyede bir çalışır, bir kurban seçer ve ROLLBACK uygular.'},
+  {q:'Kayıp Güncelleme problemi nedir?',a:'İki işlem aynı veriyi okur, biri günceller, diğeri üstüne yazar — ilk güncelleme kaybolur.'},
+  {q:'db_owner rolü ne yapar?',a:'Veritabanı üzerinde en geniş yetkiye sahip rol — tüm ayarları yapabilir ve veritabanını silebilir.'},
+  {q:'GRANT ve REVOKE farkı nedir?',a:'GRANT yetki verir, REVOKE verilmiş yetkiyi geri alır. DENY ise GRANT olsa bile erişimi reddeder.'},
+  {q:'Master veritabanının görevi nedir?',a:'SQL Server\'ın tüm yapılandırma bilgilerini saklar: oturum açma, DB konumları, replikasyon vb. Bozulursa SQL Server çalışamaz.'},
+  {q:'Tam Yedekleme (Full Backup) nedir?',a:'Veritabanının tamamını tek seferde yedekler. En kapsamlı yedekleme türü. Uzantı: .BAK'},
+  {q:'Hareket Günlük Yedekleme nedir?',a:'Verinin kendisini değil, yapılan değişikliklerin kayıtlarını (log) yedekler. Tek başına geri yükleme için tam yedek gerekir.'},
+  {q:'Tempdb ne işe yarar?',a:'Geçici nesneleri yönetir — geçici tablolar, sort işlemleri vb. Sunucu yeniden başlatılınca sıfırlanır (yeniden oluşturulur).'},
+  {q:'NoSQL veritabanı nedir?',a:'Büyük veriyi yatay ölçeklenerek depolayan, esnek şemalı, ilişkisel olmayan veritabanı sistemleri. "Not Only SQL".'},
+  {q:'MongoDB\'de belgeler nerede saklanır?',a:'Koleksiyonlarda saklanır. Koleksiyon = ilişkisel tablonun karşılığı. Belgeler JSON/BSON formatındadır.'},
+  {q:'BigQuery\'de en üst hiyerarşi nedir?',a:'Projeler — hiyerarşi: Projeler → Veri Kümeleri/Blokları → Tablolar → Sütunlar.'},
+  {q:'Özel Bulut (Private Cloud) nedir?',a:'Yalnızca bir kuruluşun kullanımına ayrılmış, dış dünyaya kapalı izole bulut altyapısı.'},
+  {q:'SaaS nedir?',a:'Software as a Service — belirli amaçlı yazılımların kiralama yöntemiyle son kullanıcıya sunulması. Örn: Gmail, Office 365.'},
+  {q:'Kontrol Kısıtlayıcısı (CHECK) ne sağlar?',a:'Sütun bütünlüğünü sağlar — girilen değerlerin belirli koşulları karşılamasını zorunlu kılar.'},
+  {q:'Veritabanı Kümeleme nedir?',a:'İki veya daha fazla bağımsız sunucunun tek bir sistem gibi çalışması. Yüksek erişilebilirlik + yük dengeleme.'},
+  {q:'db_accessadmin rolü ne yapar?',a:'Windows kullanıcıları ve SQL Server hesapları için veritabanına erişim yetkisi verir.'},
+  {q:'SSL sertifikası veritabanında ne için kullanılır?',a:'Ağ trafiğini şifreleyerek koklayıcılar (sniffers) ile izlenmesini engeller. Force Encryption = Yes ile aktif.'},
+  {q:'Bilgi Güvenliği Yönetim Sistemi\'nin 3 hedefi nedir?',a:'Gizlilik (Confidentiality), Bütünlük (Integrity), Kullanılabilirlik (Availability).'},
+  {q:'Windows Authentication Mode ile Mixed Mode farkı nedir?',a:'Windows Auth = sadece Windows kullanıcıları. Mixed Mode = hem Windows hem SQL Server kullanıcıları. Windows Auth devre dışı bırakılamaz.'},
+  {q:'Şema (Schema) nedir?',a:'Veritabanı nesnelerini mantıksal olarak gruplandıran kap. Ayrıntılı yetkilendirme için kullanılır.'},
+  {q:'ACID\'in "D"si (Durability) nasıl sağlanır?',a:'Hareket günlük (transaction log) dosyası ile. Commit sonrası değişiklikler sunucu çökse bile kalıcıdır.'},
+  {q:'@@ERROR fonksiyonu ne döndürür?',a:'Son çalıştırılan SQL ifadesinin hata kodunu. 0 = hata yok. Hareket bloklarında hata kontrolünde kullanılır.'},
+  {q:'Kaydedilmiş Okuma (READ COMMITTED) izolasyonu neyi engeller?',a:'Kirli okumayı engeller. Tekrarlanamayan okuma ve hayalet okuma oluşabilir. MS SQL Server varsayılanı.'},
+  {q:'Serileştirilebilir (SERIALIZABLE) izolasyon nedir?',a:'En kısıtlayıcı izolasyon düzeyi. Kirli okuma, tekrarlanamayan okuma ve hayalet okumayı engeller. Kilitlenme riski en yüksek.'},
+  {q:'Replikasyon ile İkizleme farkı nedir?',a:'Replikasyon = gecikmeli kopyalama, manuel geçiş. İkizleme = eş zamanlı/anlık, şahit sunucu ile otomatik geçiş. İkizleme daha maliyetli.'},
+  {q:'DBCC CHECKDB ne yapar?',a:'Veritabanı bütünlüğünü kontrol eder. Veri bozulması, referansal bütünlük sorunlarını tespit eder. Haftada bir önerilir.'},
+  {q:'CAP (Brewer) Teoremi nedir?',a:'Dağıtık sistemler Tutarlılık + Ulaşılabilirlik + Bölünebilme Toleransını aynı anda sağlayamaz; en fazla 2\'si. (1998)'},
+  {q:'Cassandra hangi NoSQL tipine girer?',a:'Sütun tabanlı NoSQL. Veri modeli: Sütun Ailesi, Anahtar, Anahtar Alanı, Sütun, Küme.'},
+  {q:'IaaS, PaaS, SaaS sırasıyla ne demektir?',a:'IaaS = Altyapı (Amazon EC2), PaaS = Platform (Azure, Google App Engine), SaaS = Yazılım (Gmail, Office 365).'},
+  {q:'Model veritabanı ne işe yarar?',a:'Yeni veritabanları için şablon. Her yeni DB oluşturulunca Model\'in kopyası alınır. Model\'deki değişiklik tüm yeni DB\'leri etkiler.'},
+  {q:'Hareket Yönetimi varsayılan modu nedir?',a:'Otokayıt (AutoCommit) — her DML ifadesi ayrı hareket olarak otomatik commit edilir. Geri alma şansı yok.'},
+  {q:'Örtük hareket modu nasıl aktifleştirilir?',a:'SET IMPLICIT_TRANSACTIONS ON. Belirli SQL komutları yürütülünce hareket otomatik başlar, COMMIT/ROLLBACK ile bitirilmeli.'},
+  {q:'Topluluk Bulut (Community Cloud) nedir?',a:'Ortak ihtiyaçları olan organizasyonların altyapılarını birbirini paylaşarak kullandığı bulut türü.'},
+  {q:'Msdb veritabanının görevi nedir?',a:'SQL Agent servisinin yapılandırması, yedekleme geçmişi, uyarılar ve işler. Geçmiş Temizleme Görevi buradan temizler.'}
+];
+
+// ========== STATS ==========
+let stats = {correct:0,wrong:0,exams:0,byUnit:{1:{c:0,w:0},2:{c:0,w:0},3:{c:0,w:0},4:{c:0,w:0},5:{c:0,w:0},6:{c:0,w:0},7:{c:0,w:0},8:{c:0,w:0}}};
+
+// ========== NAVİGASYON ==========
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const pageEl = document.getElementById('page-'+id);
+  if(pageEl) pageEl.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.onclick&&n.onclick.toString().includes("'"+id+"'")) n.classList.add('active');
+  });
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+  if(id==='hizliTekrar') renderFlashcard(), renderFCDots();
+  if(id==='gelisim') renderGelisim();
+  if(id==='analiz') renderAnaliz();
+  if(id==='cikmisSorular') {
+    document.getElementById('cikmis-yil-secici').style.display='flex';
+    document.getElementById('cikmis-sorular-ekrani').style.display='none';
+  }
+  if(id==='tahmini') renderTahmini();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+function toggleTheme() {
+  document.body.classList.toggle('light');
+  document.getElementById('theme-label').textContent = document.body.classList.contains('light') ? 'Karanlık Mod' : 'Aydınlık Mod';
+}
+
+// ========== ÇIKMIŞ SORULAR ==========
+function selectCikmisSorularYil(yil) {
+  document.getElementById('cikmis-yil-secici').style.display='none';
+  document.getElementById('cikmis-sorular-ekrani').style.display='block';
+  const labels = {'2025':'2024-2025 Bahar Dönemi','2024':'2023-2024 Bahar Dönemi','2022':'2021-2022 Bahar Dönemi'};
+  document.getElementById('cikmis-sorular-baslik').textContent = labels[yil] + ' — 20 Soru';
+  renderCikmisSorular(yil);
+}
+
+function backCikmisYilSecici() {
+  document.getElementById('cikmis-yil-secici').style.display='flex';
+  document.getElementById('cikmis-sorular-ekrani').style.display='none';
+}
+
+let cikmisCurrent = '2025';
+function switchCikmisTabs(yil) {
+  cikmisCurrent = yil;
+  renderCikmisSorular(yil);
+}
+
+function renderCikmisSorular(yil) {
+  const qs = allQuestions.filter(q=>q.yil===yil);
+  document.getElementById('cikmis-container').innerHTML = qs.map((q,qi)=>`
+    <div class="question-box" id="cs-${q.id}">
+      <div class="q-num">SORU ${qi+1} · Ünite ${q.unite} · ${q.yil==='2025'?'2024-25':q.yil==='2024'?'2023-24':'2021-22'} Bahar Sonu</div>
+      <div class="q-text">${q.soru}</div>
+      <div class="q-options">
+        ${q.secenekler.map((s,si)=>`
+          <div class="q-option" id="cs-opt-${q.id}-${si}" onclick="selectCikmisSoru(${q.id},${si})">
+            <div class="opt-letter">${'ABCDE'[si]}</div>${s}
+          </div>`).join('')}
+      </div>
+      <div id="cs-exp-${q.id}" style="display:none;"></div>
+    </div>`).join('');
+}
+
+function selectCikmisSoru(qId, selected) {
+  const q = allQuestions.find(x=>x.id===qId);
+  const isCorrect = selected === q.dogru;
+  q.secenekler.forEach((_,si)=>{
+    const el = document.getElementById(`cs-opt-${qId}-${si}`);
+    if(si===q.dogru) el.classList.add('correct');
+    else if(si===selected && !isCorrect) el.classList.add('wrong');
+    el.onclick=null;
+  });
+  const expEl = document.getElementById(`cs-exp-${qId}`);
+  expEl.style.display='block';
+  expEl.className=`explanation-box ${isCorrect?'':'wrong'}`;
+  expEl.innerHTML=`<div class="exp-title ${isCorrect?'':'wrong'}">${isCorrect?'✓ Doğru!':'✗ Yanlış!'}</div>${q.aciklama}<br><br><strong>Doğru cevap: ${'ABCDE'[q.dogru]}) ${q.secenekler[q.dogru]}</strong>`;
+  if(isCorrect){stats.correct++;if(stats.byUnit[q.unite])stats.byUnit[q.unite].c++;}
+  else{stats.wrong++;if(stats.byUnit[q.unite])stats.byUnit[q.unite].w++;}
+  updateStatCards();
+}
+
+// ========== SINAV MODU ==========
+let sinavQuestions=[],sinavIdx=0,sinavAnswers=[],sinavTimer=null,sinavSeconds=1800;
+
+function startSinav() {
+  sinavQuestions=shuffle([...allQuestions]).slice(0,20);
+  sinavIdx=0; sinavAnswers=Array(20).fill(null); sinavSeconds=1800;
+  renderSinavQ();
+  clearInterval(sinavTimer);
+  sinavTimer=setInterval(()=>{sinavSeconds--;updateTimer();if(sinavSeconds<=0){clearInterval(sinavTimer);endSinav();}},1000);
+}
+
+function updateTimer() {
+  const m=Math.floor(sinavSeconds/60),s=sinavSeconds%60;
+  const timerEl=document.getElementById('sinav-timer');
+  if(!timerEl)return;
+  timerEl.textContent=`${m}:${s<10?'0'+s:s}`;
+  timerEl.className='timer-display'+(sinavSeconds<=120?' danger':sinavSeconds<=300?' warning':'');
+}
+
+function renderSinavQ() {
+  const q=sinavQuestions[sinavIdx];
+  const m=Math.floor(sinavSeconds/60),s=sinavSeconds%60;
+  document.getElementById('sinav-container').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+      <div style="font-size:13px;color:var(--text2);">Soru ${sinavIdx+1} / 20</div>
+      <div class="timer-display" id="sinav-timer">${m}:${s<10?'0'+s:s}</div>
+    </div>
+    <div class="progress-bar" style="margin-bottom:24px;"><div class="progress-fill" style="width:${(sinavIdx/20)*100}%"></div></div>
+    <div class="question-box">
+      <div class="q-num">Soru ${sinavIdx+1} · Ünite ${q.unite}</div>
+      <div class="q-text">${q.soru}</div>
+      <div class="q-options">
+        ${q.secenekler.map((s,si)=>`
+          <div class="q-option ${sinavAnswers[sinavIdx]===si?'selected':''}" onclick="selectSinavOpt(${si})">
+            <div class="opt-letter">${'ABCDE'[si]}</div>${s}
+          </div>`).join('')}
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:16px;">
+      <button class="btn btn-ghost" onclick="sinavPrev()" ${sinavIdx===0?'disabled':''}>← Önceki</button>
+      ${sinavIdx<19?`<button class="btn btn-primary" onclick="sinavNext()">Sonraki →</button>`:`<button class="btn btn-green" onclick="endSinav()">Sınavı Bitir ✓</button>`}
+    </div>`;
+}
+
+function selectSinavOpt(si){sinavAnswers[sinavIdx]=si;renderSinavQ();}
+function sinavNext(){if(sinavIdx<19){sinavIdx++;renderSinavQ();}}
+function sinavPrev(){if(sinavIdx>0){sinavIdx--;renderSinavQ();}}
+
+function endSinav() {
+  clearInterval(sinavTimer);
+  stats.exams++;
+  let correct=0;
+  sinavQuestions.forEach((q,i)=>{
+    if(sinavAnswers[i]===q.dogru){correct++;if(stats.byUnit[q.unite])stats.byUnit[q.unite].c++;}
+    else if(sinavAnswers[i]!==null){stats.wrong++;if(stats.byUnit[q.unite])stats.byUnit[q.unite].w++;}
+  });
+  stats.correct+=correct;
+  const pct=Math.round(correct/20*100);
+  const grade=pct>=85?'AA':pct>=75?'BA':pct>=65?'BB':pct>=55?'CB':pct>=50?'CC':'FF';
+  const color=pct>=65?'var(--green)':pct>=50?'var(--amber)':'var(--red)';
+  document.getElementById('sinav-container').innerHTML=`
+    <div class="card" style="text-align:center;padding:60px;">
+      <div class="result-score" style="color:${color};">${pct}%</div>
+      <div class="result-grade" style="color:${color};">${grade} — ${correct}/20 Doğru</div>
+      <hr class="divider">
+      <div class="grid g3" style="max-width:400px;margin:20px auto;">
+        <div class="stat"><div class="stat-val" style="color:var(--green);">${correct}</div><div class="stat-label">Doğru</div></div>
+        <div class="stat"><div class="stat-val" style="color:var(--red);">${20-correct}</div><div class="stat-label">Yanlış/Boş</div></div>
+        <div class="stat"><div class="stat-val" style="color:var(--accent);">${stats.exams}</div><div class="stat-label">Sınav</div></div>
+      </div>
+      <div style="margin-top:24px;">
+        <button class="btn btn-primary" onclick="startSinav()" style="margin-right:12px;">Tekrar Dene</button>
+        <button class="btn btn-ghost" onclick="showDetay()">Cevapları Gör</button>
+      </div>
+      <div id="sinav-detay" style="display:none;margin-top:32px;text-align:left;">
+        ${sinavQuestions.map((q,i)=>`
+          <div style="padding:12px;margin-bottom:8px;border-radius:var(--radius-sm);background:var(--bg3);border-left:3px solid ${sinavAnswers[i]===q.dogru?'var(--green)':'var(--red)'};">
+            <div style="font-size:12px;font-weight:600;margin-bottom:4px;">${i+1}. ${sinavAnswers[i]===q.dogru?'✓ DOĞRU':'✗ YANLIŞ'}</div>
+            <div style="font-size:12px;color:var(--text2);">${q.soru.substring(0,80)}...</div>
+            <div style="font-size:11px;margin-top:4px;"><span style="color:var(--green);">Doğru: ${'ABCDE'[q.dogru]}) ${q.secenekler[q.dogru]}</span>${sinavAnswers[i]!==null&&sinavAnswers[i]!==q.dogru?` · <span style="color:var(--red);">Senin: ${'ABCDE'[sinavAnswers[i]]}) ${q.secenekler[sinavAnswers[i]]}</span>`:''}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  updateStatCards();
+}
+
+function showDetay() {
+  const d=document.getElementById('sinav-detay');
+  d.style.display=d.style.display==='none'?'block':'none';
+}
+
+// ========== TAHMİNİ SORULAR ==========
+function renderTahmini() {
+  document.getElementById('tahmini-container').innerHTML=`
+    <div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:var(--radius);padding:16px;margin-bottom:24px;">
+      <div style="font-size:13px;font-weight:600;color:var(--amber);margin-bottom:8px;">⚠️ Tahmini Sorular Hakkında</div>
+      <div style="font-size:12px;color:var(--text2);">Bu sorular 3 yıllık çıkmış soru analizi ve tekrar eden konular baz alınarak hazırlanmıştır. Çıkma garantisi yoktur ancak bu konuların iyi çalışılması önerilir.</div>
+    </div>
+    ${tahminiSorular.map((q,qi)=>`
+      <div class="question-box" id="tah-${qi}">
+        <div class="q-num">TAHMİNİ SORU ${qi+1}</div>
+        <div class="q-text">${q.soru}</div>
+        <div class="q-options">
+          ${q.secenekler.map((s,si)=>`
+            <div class="q-option" id="tah-opt-${qi}-${si}" onclick="selectTahmini(${qi},${si})">
+              <div class="opt-letter">${'ABCDE'[si]}</div>${s}
+            </div>`).join('')}
+        </div>
+        <div id="tah-exp-${qi}" style="display:none;"></div>
+      </div>`).join('')}`;
+}
+
+function selectTahmini(qi, selected) {
+  const q=tahminiSorular[qi];
+  const isCorrect=selected===q.dogru;
+  q.secenekler.forEach((_,si)=>{
+    const el=document.getElementById(`tah-opt-${qi}-${si}`);
+    if(si===q.dogru) el.classList.add('correct');
+    else if(si===selected&&!isCorrect) el.classList.add('wrong');
+    el.onclick=null;
+  });
+  const expEl=document.getElementById(`tah-exp-${qi}`);
+  expEl.style.display='block';
+  expEl.className=`explanation-box ${isCorrect?'':'wrong'}`;
+  expEl.innerHTML=`<div class="exp-title ${isCorrect?'':'wrong'}">${isCorrect?'✓ Doğru!':'✗ Yanlış!'}</div>${q.aciklama}`;
+  if(isCorrect) stats.correct++;
+  else stats.wrong++;
+  updateStatCards();
+}
+
+// ========== FLASHCARD ==========
+let fcIdx=0,fcStatus=Array(fcCards.length).fill(null);
+
+function renderFlashcard() {
+  document.getElementById('fc-counter').textContent=`Kart ${fcIdx+1} / ${fcCards.length}`;
+  document.getElementById('fc-card-area').innerHTML=`
+    <div class="flashcard" id="fc-card" onclick="flipCard()">
+      <div class="flashcard-inner">
+        <div class="flashcard-front">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:12px;font-family:var(--mono);">SORU</div>
+          <div style="font-size:16px;font-weight:600;line-height:1.5;">${fcCards[fcIdx].q}</div>
+          <div class="fc-hint">tıkla → cevabı gör</div>
+        </div>
+        <div class="flashcard-back">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:12px;font-family:var(--mono);">CEVAP</div>
+          <div style="font-size:14px;line-height:1.6;color:var(--text);">${fcCards[fcIdx].a}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function flipCard(){document.getElementById('fc-card').classList.toggle('flipped');}
+function fcNext(){fcIdx=(fcIdx+1)%fcCards.length;renderFlashcard();renderFCDots();}
+function fcPrev(){fcIdx=(fcIdx-1+fcCards.length)%fcCards.length;renderFlashcard();renderFCDots();}
+function fcMarkOk(){fcStatus[fcIdx]='ok';renderFCDots();fcNext();}
+function fcMarkNo(){fcStatus[fcIdx]='no';renderFCDots();fcNext();}
+
+function renderFCDots() {
+  document.getElementById('fc-dots').innerHTML=fcCards.map((c,i)=>`
+    <div onclick="fcIdx=${i};renderFlashcard();renderFCDots();" style="width:10px;height:10px;border-radius:50%;cursor:pointer;background:${fcStatus[i]==='ok'?'var(--green)':fcStatus[i]==='no'?'var(--red)':i===fcIdx?'var(--accent)':'var(--bg3)'};border:1px solid var(--border);"></div>
+  `).join('');
+}
+
+// ========== ANALİZ ==========
+function renderAnaliz() {
+  const topicFreq=[
+    {label:'COMMIT/ROLLBACK/BEGIN Transaction',count:9,color:'var(--red)'},
+    {label:'Master Veritabanı İşlevi',count:8,color:'var(--red)'},
+    {label:'Tam Yedekleme',count:7,color:'var(--amber)'},
+    {label:'db_owner Rolü / Rol Yönetimi',count:7,color:'var(--amber)'},
+    {label:'Paylaşılan Kilit (Shared Lock)',count:6,color:'var(--accent)'},
+    {label:'MongoDB Koleksiyon / JSON',count:6,color:'var(--accent)'},
+    {label:'Özel Bulut',count:5,color:'var(--purple)'},
+    {label:'Kilitlenme (Deadlock) İzleyicisi',count:4,color:'var(--teal)'},
+    {label:'BigQuery Bileşenleri / Projeler',count:4,color:'var(--teal)'},
+    {label:'Yedekten Geri Yükleme Nedenleri',count:3,color:'var(--green)'},
+  ];
+  document.getElementById('analiz-list').innerHTML=topicFreq.map(t=>`
+    <div class="heat-item">
+      <span style="font-size:12px;color:var(--text2);min-width:200px;">${t.label}</span>
+      <div class="heat-bar"><div class="heat-fill" style="width:${t.count/9*100}%;background:${t.color};"></div></div>
+      <span class="heat-count">${t.count}x</span>
+    </div>`).join('');
+
+  const tipFreq=[
+    {label:'Hangisi değildir? (olumsuz)',count:14,color:'var(--red)'},
+    {label:'Hangisi doğrudur?',count:20,color:'var(--accent)'},
+    {label:'Komut/Sözdizimi sorusu',count:12,color:'var(--amber)'},
+    {label:'Kavram tanımı',count:8,color:'var(--purple)'},
+    {label:'Senaryo bazlı soru',count:6,color:'var(--green)'},
+  ];
+  document.getElementById('tip-list').innerHTML=tipFreq.map(t=>`
+    <div class="heat-item">
+      <span style="font-size:12px;color:var(--text2);min-width:180px;">${t.label}</span>
+      <div class="heat-bar"><div class="heat-fill" style="width:${t.count/20*100}%;background:${t.color};"></div></div>
+      <span class="heat-count">${t.count}</span>
+    </div>`).join('');
+
+  const uniteFreq=[
+    {u:'1-2',label:'T-SQL & Fonksiyon',count:9},
+    {u:'3-4',label:'Saklı Yordam & Kısıt',count:8},
+    {u:'5',label:'Hareket & Eş Zamanlılık',count:13},
+    {u:'6',label:'Güvenlik & Yetkilendirme',count:16},
+    {u:'7',label:'Yedekleme & Felaket',count:9},
+    {u:'8',label:'NoSQL & Bulut',count:5}
+  ];
+  document.getElementById('unite-dist').innerHTML=uniteFreq.map(u=>`
+    <div class="heat-item">
+      <span style="font-size:12px;color:var(--text2);min-width:160px;">Ünite ${u.u} — ${u.label}</span>
+      <div class="heat-bar"><div class="heat-fill" style="width:${u.count/16*100}%;background:var(--accent);"></div></div>
+      <span class="heat-count">${u.count} soru</span>
+    </div>`).join('');
+}
+
+// ========== GELİŞİM ==========
+function renderGelisim() {
+  const total=stats.correct+stats.wrong;
+  const oran=total>0?Math.round(stats.correct/total*100):0;
+  const groups=[
+    {label:'Ünite 1-2 (T-SQL)',c:stats.byUnit[1].c+stats.byUnit[2].c,w:stats.byUnit[1].w+stats.byUnit[2].w},
+    {label:'Ünite 3-4 (Saklı Yordam/Kısıt)',c:stats.byUnit[3].c+stats.byUnit[4].c,w:stats.byUnit[3].w+stats.byUnit[4].w},
+    {label:'Ünite 5 (Hareket/Eş Zamanlılık)',c:stats.byUnit[5].c,w:stats.byUnit[5].w},
+    {label:'Ünite 6 (Güvenlik/Yetki)',c:stats.byUnit[6].c,w:stats.byUnit[6].w},
+    {label:'Ünite 7 (Yedekleme/Felaket)',c:stats.byUnit[7].c,w:stats.byUnit[7].w},
+    {label:'Ünite 8 (NoSQL/Bulut)',c:stats.byUnit[8].c,w:stats.byUnit[8].w},
+  ].map(g=>({...g,total:g.c+g.w,oran:g.c+g.w>0?Math.round(g.c/(g.c+g.w)*100):0}));
+
+  document.getElementById('gelisim-container').innerHTML=`
+    <div class="grid g4" style="margin-bottom:24px;">
+      <div class="stat"><div class="stat-val" style="color:var(--accent);">${total}</div><div class="stat-label">Çözülen</div></div>
+      <div class="stat"><div class="stat-val" style="color:var(--green);">${stats.correct}</div><div class="stat-label">Doğru</div></div>
+      <div class="stat"><div class="stat-val" style="color:var(--red);">${stats.wrong}</div><div class="stat-label">Yanlış</div></div>
+      <div class="stat"><div class="stat-val" style="color:var(--amber);">${oran}%</div><div class="stat-label">Başarı</div></div>
+    </div>
+    <div class="grid g2">
+      <div class="card">
+        <div style="font-size:13px;font-weight:600;margin-bottom:16px;">Ünite Grup Başarı Oranları</div>
+        ${groups.map(g=>`
+          <div style="margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+              <span style="color:var(--text2);">${g.label}</span>
+              <span style="font-family:var(--mono);color:${g.oran>=70?'var(--green)':g.oran>=50?'var(--amber)':'var(--red)'};">${g.oran}% (${g.c}/${g.total})</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:${g.oran}%;background:${g.oran>=70?'var(--green)':g.oran>=50?'var(--amber)':'var(--red)'}"></div></div>
+          </div>`).join('')}
+      </div>
+      <div class="card">
+        <div style="font-size:13px;font-weight:600;margin-bottom:16px;">Zayıf Konular Analizi</div>
+        ${groups.filter(g=>g.w>0).sort((a,b)=>b.w-a.w).map(g=>`
+          <div class="heat-item">
+            <span style="font-size:12px;color:var(--text2);min-width:140px;">${g.label}</span>
+            <div class="heat-bar"><div class="heat-fill" style="width:${g.total>0?100:0}%;background:var(--red);opacity:0.6;"></div></div>
+            <span class="heat-count" style="color:var(--red);">${g.w} hata</span>
+          </div>`).join('')||'<div style="color:var(--text3);font-size:13px;">Henüz yeterli veri yok. Soru çözmeye başla!</div>'}
+        <hr class="divider">
+        <div style="font-size:12px;color:var(--text3);">${stats.exams>0?`${stats.exams} sınav tamamlandı.`:'Henüz sınav modu tamamlanmadı.'}</div>
+      </div>
+    </div>`;
+}
+
+// ========== STAT KARTLARI ==========
+function updateStatCards() {
+  document.getElementById('stat-dogru').textContent=stats.correct;
+  document.getElementById('stat-yanlis').textContent=stats.wrong;
+  document.getElementById('stat-sinav').textContent=stats.exams;
+  const t=stats.correct+stats.wrong;
+  document.getElementById('stat-dogru-oran').textContent=t>0?`%${Math.round(stats.correct/t*100)} başarı`:'—';
+  document.getElementById('stat-yanlis-oran').textContent=t>0?`${t} toplam`:'—';
+}
+
+// ========== YARDIMCI ==========
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+// Init
+updateStatCards();
+</script>
+</body>
+</html>
