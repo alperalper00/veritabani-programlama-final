@@ -338,7 +338,23 @@ table.info-table td{padding:5px 8px;border:1px solid var(--border);color:var(--t
             <li><strong>Örtük Hareket (Implicit):</strong> SET IMPLICIT_TRANSACTIONS ON ile aktifleşir. Belirli SQL komutları yürütülünce hareket otomatik başlar; COMMIT/ROLLBACK ile bitirilmesi gerekir. Unutulursa tablo bağlantısı açık kalır!</li>
             <li><strong>Açık Hareket (Explicit):</strong> Kullanıcı BEGIN TRANSACTION ile başlatır, COMMIT veya ROLLBACK ile bitirir. En çok tercih edilen mod — tam kontrol sağlar.</li>
           </ul>
-          <div class="sinav-notu">Kullanıcı başlatıp sonlandırır → AÇIK HAREKET. 2022 cevap: C (Açık hareket). SET IMPLICIT_TRANSACTIONS ON → örtük mod. Varsayılan → Otokayıt. Her DML ayrı → otokayıt.</div>
+          <div class="sinav-notu">Kullanıcı başlatıp sonlandırır → AÇIK HAREKET. 2022 cevap: C (Açık hareket). SET IMPLICIT_TRANSACTIONS ON → örtük mod. Varsayılan → Otokayıt. Her DML ayrı → otokayıt. Örtük mod + commit unutulursa tablo bağlantısı AÇIK KALIR.</div>
+          <div style="overflow-x:auto;margin:8px 0;">
+            <table class="info-table">
+              <tr><th colspan="3">Örtük Hareket Otomatik Başlatan SQL İfadeleri (Tablo 5.2)</th></tr>
+              <tr><td>ALTER TABLE</td><td>GRANT</td><td>TRUNCATE TABLE</td></tr>
+              <tr><td>FETCH</td><td>SELECT</td><td>DROP</td></tr>
+              <tr><td>REVOKE</td><td>DELETE</td><td>OPEN</td></tr>
+              <tr><td>CREATE</td><td>INSERT</td><td>UPDATE</td></tr>
+            </table>
+          </div>
+          <div style="overflow-x:auto;margin:8px 0;">
+            <table class="info-table">
+              <tr><th>Komut</th><th>Açıklama</th></tr>
+              <tr><td style="font-family:var(--mono);font-size:10px;">SET IMPLICIT_TRANSACTIONS ON</td><td>Örtük hareket modunu aktifler</td></tr>
+              <tr><td style="font-family:var(--mono);font-size:10px;">SET IMPLICIT_TRANSACTIONS OFF</td><td>Örtük hareket modunu kapatır</td></tr>
+            </table>
+          </div>
         </div>
         <div class="topic-card" style="border-color:var(--accent);">
           <div class="topic-title">BEGIN / COMMIT / ROLLBACK / SAVE Komutları <span class="badge badge-red">Her Yıl Çıkıyor</span></div>
@@ -350,7 +366,18 @@ table.info-table td{padding:5px 8px;border:1px solid var(--border);color:var(--t
             <li><strong>@@TRANCOUNT:</strong> Aktif hareket sayısını döndürür. BEGIN → +1, ROLLBACK/COMMIT → -1</li>
             <li>@@ERROR &lt;&gt; 0 → GOTO HATA_VAR → ROLLBACK TRANSACTION</li>
           </ul>
-          <div class="sinav-notu">Değişiklikleri kalıcı → COMMIT. 2024-25: D (COMMIT). Açık hareket başlangıç → BEGIN (2023-24: E). Geri alma → ROLLBACK. @@TRANCOUNT → aktif hareket sayısı.</div>
+          <div style="overflow-x:auto;margin:8px 0;">
+            <table class="info-table">
+              <tr><th>Komut</th><th>Açıklama</th></tr>
+              <tr><td style="font-family:var(--mono);font-size:10px;">BEGIN TRANSACTION</td><td>Açık hareket başlangıç noktasını belirler</td></tr>
+              <tr><td style="font-family:var(--mono);font-size:10px;">ROLLBACK TRANSACTION</td><td>Hareket bloğu tarafından yapılmış değişiklikleri geri alır</td></tr>
+              <tr><td style="font-family:var(--mono);font-size:10px;">COMMIT TRANSACTION</td><td>Hata yoksa değişikliklerin kalıcı hale getirilmesi</td></tr>
+              <tr><td style="font-family:var(--mono);font-size:10px;">SAVE TRANSACTION</td><td>Hareket bloğu içinde geri dönüş noktaları oluşturmak</td></tr>
+              <tr><td style="font-family:var(--mono);font-size:10px;">@@TRANCOUNT</td><td>Aktif hareket sayısını döndürür. BEGIN TRAN → +1; ROLLBACK/COMMIT → -1</td></tr>
+            </table>
+          </div>
+          <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px 16px;margin:8px 0;font-family:var(--mono);font-size:11px;color:var(--teal);line-height:1.6;">BEGIN TRANSACTION<br>DECLARE @urunFiyat decimal(18,2);<br>SELECT @urunFiyat=Urun_Fiyati FROM Urunler where Urun_No=12;<br>INSERT INTO Satislar(Satis_No, Urun_No, Calisan_TC_No, Miktar, Fiyat, Tarih)<br>&nbsp;VALUES (12, 12, '78965412305', 1, @urunFiyat, CONVERT(date, GETDATE()));<br>if (@@ERROR&lt;&gt;0) goto HATA_VAR;<br>UPDATE Urunler SET Urun_Sayisi=Urun_Sayisi-1 where Urun_No=12;<br>if (@@ERROR&lt;&gt;0) goto HATA_VAR;<br>COMMIT TRANSACTION<br>HATA_VAR:<br>if (@@ERROR&lt;&gt;0) BEGIN ROLLBACK TRANSACTION; END</div>
+          <div class="sinav-notu">Değişiklikleri kalıcı → COMMIT. 2024-25: D (COMMIT). Açık hareket başlangıç → BEGIN (2023-24: E). Geri alma → ROLLBACK. @@TRANCOUNT → aktif hareket sayısı. @@ERROR &lt;&gt; 0 → hata varsa GOTO HATA_VAR → ROLLBACK ile tüm değişiklikler geri alınır.</div>
         </div>
       </div>
       <div>
@@ -429,7 +456,78 @@ table.info-table td{padding:5px 8px;border:1px solid var(--border);color:var(--t
             <li>IS ile X → UYUMSUZ. S ile IX → UYUMSUZ. X ile tüm diğerleri → UYUMSUZ</li>
             <li>IS ile IS, IS ile S, IS ile U, IS ile IX, IS ile SIX → UYUMLU (okuma ağırlıklı)</li>
           </ul>
+          <div style="overflow-x:auto;margin:8px 0;">
+            <table class="info-table">
+              <tr><th>Kısaltma</th><th>Kilit Modu</th><th>Açıklama</th></tr>
+              <tr><td style="font-family:var(--mono);">S</td><td>Paylaşılan</td><td>Kilitli kaynaklar üzerinde okumaya izin, değişikliğe izin yok</td></tr>
+              <tr><td style="font-family:var(--mono);">X</td><td>Ayrıcalıklı</td><td>Hem okuma hem değişiklik yapılmasına izin verilmez</td></tr>
+              <tr><td style="font-family:var(--mono);">U</td><td>Güncelleştirme</td><td>Diğer işlemlerin güncelleştirme veya ayrıcalıklı kilit koymasını engeller; değişiklik yapılacak veri aranırken kullanılır</td></tr>
+              <tr><td style="font-family:var(--mono);">IS</td><td>Amaç Paylaşılan</td><td>İlgili kaynak bileşenlerinin paylaşılan modda kilitlendiğini gösterir (tablo/sayfa düzeyinde)</td></tr>
+              <tr><td style="font-family:var(--mono);">IU</td><td>Amaç Güncelleştirme</td><td>İlgili kaynak bileşenlerinin güncelleştirme modunda kilitlendiğini gösterir</td></tr>
+              <tr><td style="font-family:var(--mono);">IX</td><td>Amaç Ayrıcalıklı</td><td>İlgili kaynak bileşenlerinin ayrıcalıklı modda kilitlendiğini gösterir</td></tr>
+              <tr><td style="font-family:var(--mono);">SIX</td><td>Amaç Ayrıcalıklı ile Paylaşılan</td><td>Paylaşılan kilit mod uygulanmış kaynağın, ayrıcalıklı kilit modunda bir bileşeni (sayfa veya kayıt) olduğunu gösterir</td></tr>
+              <tr><td style="font-family:var(--mono);">SIU</td><td>Amaç Güncelleştirme ile Paylaşılan</td><td>Paylaşılan kilit modundaki kaynağın güncelleştirme kilit modunda bileşeni var</td></tr>
+              <tr><td style="font-family:var(--mono);">UIX</td><td>Amaç Ayrıcalıklı ile Güncelleştirme</td><td>Güncelleştirme kilit modundaki kaynağın ayrıcalıklı modda bileşeni var</td></tr>
+              <tr><td style="font-family:var(--mono);">Sch-S</td><td>Şema Kararlılık</td><td>Bu tabloyu kullanan bir sorgunun derlendiğini gösterir</td></tr>
+              <tr><td style="font-family:var(--mono);">Sch-M</td><td>Şema Değiştirme</td><td>Tablo yapısının değiştirildiğini gösterir</td></tr>
+              <tr><td style="font-family:var(--mono);">BU</td><td>Toplu Güncelleştirme</td><td>Bir tablo içine toplu kopyalama işlemi yapıldığında kullanılır</td></tr>
+            </table>
+          </div>
+          <div style="overflow-x:auto;margin:8px 0;">
+            <table class="info-table">
+              <tr><th colspan="2">MS SQL Server Kilitlenebilir Kaynaklar</th></tr>
+              <tr><th>Kaynak</th><th>Açıklama</th></tr>
+              <tr><td>RID</td><td>Satır tanımlayıcı (bir satırı kilitler)</td></tr>
+              <tr><td>KEY</td><td>İndeks satır kilidi</td></tr>
+              <tr><td>PAGE</td><td>8kBayt veri veya indeks sayfası</td></tr>
+              <tr><td>EXTENT</td><td>Bitişik 8 adet 8kBayt'lık sayfa (64kBayt)</td></tr>
+              <tr><td>OBJECT</td><td>Veritabanı nesnesi (tablo, indeks)</td></tr>
+              <tr><td>DATABASE</td><td>Tüm veritabanı kilidi</td></tr>
+              <tr><td>HOBT</td><td>Heap veya B-tree yapısı</td></tr>
+              <tr><td>File</td><td>Veritabanı dosyası</td></tr>
+              <tr><td>Metadata</td><td>Sistem üstverisi</td></tr>
+              <tr><td>Allocation Unit</td><td>Veri tiplerine göre gruplanmış birbirleriyle ilişkili sayfa kümeleri</td></tr>
+            </table>
+          </div>
+          <div style="overflow-x:auto;margin:8px 0;">
+            <table class="info-table">
+              <tr><th colspan="7">Kilit Uyumluluk Matrisi — Tablo Üzerindeki Mevcut Kilit Modu</th></tr>
+              <tr><th>İstenen ↓ / Mevcut →</th><th>IS</th><th>S</th><th>U</th><th>IX</th><th>SIX</th><th>X</th></tr>
+              <tr><td><strong>IS</strong></td><td style="color:var(--green);text-align:center;">Evet</td><td style="color:var(--green);text-align:center;">Evet</td><td style="color:var(--green);text-align:center;">Evet</td><td style="color:var(--green);text-align:center;">Evet</td><td style="color:var(--green);text-align:center;">Evet</td><td style="color:var(--red);text-align:center;">Hayır</td></tr>
+              <tr><td><strong>S</strong></td><td style="color:var(--green);text-align:center;">Evet</td><td style="color:var(--green);text-align:center;">Evet</td><td style="color:var(--green);text-align:center;">Evet</td><td style="color:var(--red);text-align:center;">Hayır</td><td style="color:var(--red);text-align:center;">Hayır</td><td style="color:var(--red);text-align:center;">Hayır</td></tr>
+              <tr><td><strong>U</strong></td><td style="color:var(--green);text-align:center;">Evet</td><td style="color:var(--green);text-align:center;">Evet</td><td style="color:var(--red);text-align:center;">Hayır</td><td style="color:var(--red);text-align:center;">Hayır</td><td style="color:var(--red);text-align:center;">Hayır</td><td style="color:var(--red);text-align:center;">Hayır</td></tr>
+              <tr><td><strong>IX</strong></td><td style="color:var(--green);text-align:center;">Evet</td><td style="color:var(--red);text-align:center;">Hayır</td><td style="color:var(--red);text-align:center;">Hayır</td><td style="color:var(--green);text-align:center;">Evet</td><td style="color:var(--red);text-align:center;">Hayır</td><td style="color:var(--red);text-align:center;">Hayır</td></tr>
+              <tr><td><strong>SIX</strong></td><td style="color:var(--green);text-align:center;">Evet</td><td style="color:var(--red);text-align:center;">Hayır</td><td style="color:var(--red);text-align:center;">Hayır</td><td style="color:var(--red);text-align:center;">Hayır</td><td style="color:var(--red);text-align:center;">Hayır</td><td style="color:var(--red);text-align:center;">Hayır</td></tr>
+              <tr><td><strong>X</strong></td><td style="color:var(--red);text-align:center;">Hayır</td><td style="color:var(--red);text-align:center;">Hayır</td><td style="color:var(--red);text-align:center;">Hayır</td><td style="color:var(--red);text-align:center;">Hayır</td><td style="color:var(--red);text-align:center;">Hayır</td><td style="color:var(--red);text-align:center;">Hayır</td></tr>
+            </table>
+          </div>
           <div class="sinav-notu">SIX → Paylaşılan kilit mod uygulanmış kaynağın ayrıcalıklı modda bileşeni var. 2022 sınavı cevap: A (Ayrıcalıklı Kilit Modu = Exclusive). IS+X = HAYIR. X+X = HAYIR.</div>
+        </div>
+
+        <!-- Ünite 5 Kendimizi Sınayalım -->
+        <div class="topic-card" style="border-color:var(--green);">
+          <div class="topic-title">Kendimizi Sınayalım — Ünite 5 Yanıt Anahtarı</div>
+          <div style="overflow-x:auto;margin:8px 0;">
+            <table class="info-table">
+              <tr><th>Soru</th><th>Cevap</th><th>Konu</th></tr>
+              <tr><td>1</td><td style="color:var(--green);font-weight:700;">a — Bölünmezlik</td><td>"Ya hep ya hiç" mantığıyla yürütülmesi = Atomicity</td></tr>
+              <tr><td>2</td><td style="color:var(--green);font-weight:700;">d — Devamlılık</td><td>Hareket günlük dosyası → Devamlılık özelliğini sağlar</td></tr>
+              <tr><td>3</td><td style="color:var(--green);font-weight:700;">a — Otokayıt hareket</td><td>Varsayılan hareket yönetim modu = Otokayıt (AutoCommit)</td></tr>
+              <tr><td>4</td><td style="color:var(--green);font-weight:700;">c — Açık hareket</td><td>Kullanıcılar tarafından başlatılıp sonlandırılır = Açık hareket</td></tr>
+              <tr><td>5</td><td style="color:var(--green);font-weight:700;">c — Kirli okuma</td><td>Commit edilmemiş verinin okunması = Kirli okuma (dirty read)</td></tr>
+              <tr><td>6</td><td style="color:var(--green);font-weight:700;">d — Hayalet okuma</td><td>Araya yeni kayıt eklenmesi sonucu fazla satır = Hayalet okuma</td></tr>
+              <tr><td>7</td><td style="color:var(--green);font-weight:700;">a — Kaydedilmiş okuma</td><td>Varsayılan izolasyon düzeyi = READ COMMITTED</td></tr>
+              <tr><td>8</td><td style="color:var(--green);font-weight:700;">d — Serileştirilebilir</td><td>En kısıtlayıcı izolasyon düzeyi = SERIALIZABLE</td></tr>
+              <tr><td>9</td><td style="color:var(--green);font-weight:700;">a — Amaç Ayrıcalıklı ile Paylaşılan</td><td>Paylaşılan modda kaynağın ayrıcalıklı bileşeni = SIX</td></tr>
+              <tr><td>10</td><td style="color:var(--green);font-weight:700;">e — Ayrıcalıklı</td><td>Hem okuma hem değişiklik engellenir = X (Exclusive)</td></tr>
+            </table>
+          </div>
+          <div style="background:rgba(62,207,142,0.05);border:1px solid rgba(62,207,142,0.2);border-radius:var(--radius-sm);padding:12px 16px;margin-top:8px;font-size:12px;color:var(--text2);">
+            <div style="font-weight:700;color:var(--green);margin-bottom:6px;">Sıra Sizde Yanıtları — Ünite 5</div>
+            <div style="margin-bottom:4px;"><strong>Sıra Sizde 1 (Bölünmezlik örneği):</strong> Banka havalesi — gönderen hesaptan para düşülür ama alıcıya eklenmeden sistem çökerse veri tutarsız olur. Bölünmezlik: ya her iki işlem tamamlanır ya da hiçbiri uygulanmaz (geri alınır).</div>
+            <div style="margin-bottom:4px;"><strong>Sıra Sizde 2 (İzolasyon tablosu):</strong> READ UNCOMMITTED: Kirli=Var, Tekrar=Var, Hayalet=Var | READ COMMITTED: Kirli=Yok, Tekrar=Var, Hayalet=Var | REPEATABLE READ: Kirli=Yok, Tekrar=Yok, Hayalet=Var | SERIALIZABLE: Kirli=Yok, Tekrar=Yok, Hayalet=Yok</div>
+            <div><strong>Sıra Sizde 4 (Kilitleri kısa tutma):</strong> Ayrıcalıklı (X) kilitler hareket sonuna kadar tutulur. Veri güncelleme işlemleri mümkün olduğunca hareket bloğunun sonlarına yakın yerlerde gerçekleştirilmelidir.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -493,6 +591,18 @@ table.info-table td{padding:5px 8px;border:1px solid var(--border);color:var(--t
           </ul>
           <div class="sinav-notu">SQL Server kullanıcı hesapları → LOGİNS. 2023-24: B (Logins). Kullanıcı oluşturma → CREATE USER (2022: D). Hesabı silmeden erişimi kapat → devre dışı bırak. Şema → detaylı yetkilendirme için.</div>
         </div>
+        <div class="topic-card" style="border-color:var(--red);">
+          <div class="topic-title">Güvenlik Açıkları Kategorileri — Detaylı Tablo</div>
+          <div style="overflow-x:auto;margin:8px 0;">
+            <table class="info-table">
+              <tr><th>Kategori</th><th>Alt Başlıklar</th></tr>
+              <tr><td><strong>DONANIM</strong></td><td>Kasıtsız Zarar: Yiyecek-İçecek, Hayvanlar, Toz, Yıldırım, Kaba Kullanım, Su Basması | Kasıtlı Zarar: Hırsızlık, Fiziksel Zararlar (kırma, bozma, parçalama)</td></tr>
+              <tr><td><strong>YAZILIM</strong></td><td>Silinme (kasıtsız/kasıtlı) | Değiştirilme: Truva Atları, Virüsler, Arka Kapılar, Bilgi Sızdırma, Solucanlar | Hırsızlık: Lisansız Kullanım, İzinsiz kopyalama</td></tr>
+              <tr><td><strong>VERİ</strong></td><td>Gizliliğin İhlali: Dinleme, Bilgi Sızdırma (insanlar yoluyla) | Engelleme: Silme, Ulaşılamaz hale getirme | Bütünlüğün Bozulması: Veri Değişikliği, Sahte Veri</td></tr>
+            </table>
+          </div>
+          <div class="sinav-notu">Virüs, Truva atı, Solucan, Arka kapı → YAZILIMSAL açık. Dinleme, sahte veri → VERİ açığı. Fiziksel kırma/bozma → DONANIM açığı. "Yerel olarak veritabanına erişim sağlamak" → güvenlik açığı DEĞİL (2022 Ü6 Soru 1 cevabı: e).</div>
+        </div>
       </div>
       <div>
         <div class="unit-header">
@@ -555,6 +665,37 @@ table.info-table td{padding:5px 8px;border:1px solid var(--border);color:var(--t
             <li><strong>Şema (Schema):</strong> Nesneleri mantıksal gruplandıran kap. Daha ayrıntılı yetkilendirme için: CREATE SCHEMA AUTHORIZATION kullanici_ismi [şema_öğesi]</li>
           </ul>
           <div class="sinav-notu">SQL Server kullanıcı hesapları → LOGİNS. 2023-24: B (Logins). Kullanıcı oluşturma → CREATE USER (2022: D). Şema → nesneleri gruplandıran kap, detaylı yetkilendirme. Credentials, Audits → login DEĞİL.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--teal);">
+          <div class="topic-title">Rol Oluşturma ve Yönetme Komutları (Detaylı)</div>
+          <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px 16px;margin:8px 0;font-family:var(--mono);font-size:11px;color:var(--teal);line-height:1.7;">-- Özel rol oluşturma; sahibi db_owner olur<br>CREATE ROLE rol_bilgisayar AUTHORIZATION db_owner;<br><br>-- Role kullanıcı atama<br>EXEC sp_addrolemember 'rol_bilgisayar', 'Ali'<br><br>-- Role başka şema/rol ekleme<br>ALTER AUTHORIZATION ON SCHEMA :: [db_accessadmin] TO [rol_bilgisayar]<br>ALTER AUTHORIZATION ON SCHEMA :: [db_securityadmin] TO [rol_bilgisayar]<br><br>-- Şema oluşturma (daha ayrıntılı yetkilendirme)<br>CREATE SCHEMA AUTHORIZATION kullanici_ismi<br><br>-- GRANT/REVOKE/DENY örnekleri<br>GRANT SELECT ON Urunler TO Ali      -- okuma hakkı<br>GRANT INSERT Urun_Fiyati ON Urunler TO Ali  -- belirli sütun<br>GRANT ALL ON Urunler TO Ali         -- tüm yetkiler<br>DENY INSERT ON Urunler TO Ali       -- insert kısıtla<br>REVOKE UPDATE ON Urunler TO Can     -- güncelleme geri al<br>REVOKE ALL ON Urunler TO Ali        -- tüm yetkileri geri al</div>
+          <div class="sinav-notu">CREATE ROLE → özel rol oluşturur. EXEC sp_addrolemember → role üye ekler. ALTER AUTHORIZATION → role başka rol atar. GRANT = ver, REVOKE = geri al, DENY = reddet (GRANT olsa bile geçersiz). GRANT ALL = tüm ayrıcalıklar bir komutla.</div>
+        </div>
+        <!-- Ünite 6 Kendimizi Sınayalım -->
+        <div class="topic-card" style="border-color:var(--green);">
+          <div class="topic-title">Kendimizi Sınayalım — Ünite 6 Yanıt Anahtarı</div>
+          <div style="overflow-x:auto;margin:8px 0;">
+            <table class="info-table">
+              <tr><th>Soru</th><th>Cevap</th><th>Konu</th></tr>
+              <tr><td>1</td><td style="color:var(--green);font-weight:700;">e — Yerel erişim</td><td>Yerel olarak DB'ye erişim sağlamak → güvenlik açığı DEĞİL</td></tr>
+              <tr><td>2</td><td style="color:var(--green);font-weight:700;">d — CREATE USER</td><td>Veritabanında kullanıcı oluşturmak için CREATE USER</td></tr>
+              <tr><td>3</td><td style="color:var(--green);font-weight:700;">d — REVOKE</td><td>Kullanıcılara verilen ayrıcalıklar REVOKE ile geri alınır</td></tr>
+              <tr><td>4</td><td style="color:var(--green);font-weight:700;">a — db_owner</td><td>Tüm ayarları yapabilme ve silebilme → db_owner</td></tr>
+              <tr><td>5</td><td style="color:var(--green);font-weight:700;">b — Koklayıcı</td><td>Ağ trafiğini izleyen yazılımların genel adı = Koklayıcı (Sniffer)</td></tr>
+              <tr><td>6</td><td style="color:var(--green);font-weight:700;">e — GRANT</td><td>Kullanıcılara ayrıcalıklar vermek → GRANT komutu</td></tr>
+              <tr><td>7</td><td style="color:var(--green);font-weight:700;">c — ADD</td><td>Etikete (role) kullanıcı eklemek → sp_addrolemember / ADD</td></tr>
+              <tr><td>8</td><td style="color:var(--green);font-weight:700;">a — Windows Authentication mode</td><td>Sadece Windows kullanıcılarına sisteme giriş → Windows Authentication mode</td></tr>
+              <tr><td>9</td><td style="color:var(--green);font-weight:700;">d — Bütünlük</td><td>Bilgi Güvenliği Yönetim Sistemi Standardı hedefi = Bütünlük</td></tr>
+              <tr><td>10</td><td style="color:var(--green);font-weight:700;">c — Veritabanı yedeğini alma</td><td>Sunucu rolü DEĞİL → Veritabanı yedeğini alma (db_backupoperator, veritabanı rolüdür)</td></tr>
+            </table>
+          </div>
+          <div style="background:rgba(62,207,142,0.05);border:1px solid rgba(62,207,142,0.2);border-radius:var(--radius-sm);padding:12px 16px;margin-top:8px;font-size:12px;color:var(--text2);">
+            <div style="font-weight:700;color:var(--green);margin-bottom:6px;">Sıra Sizde Yanıtları — Ünite 6</div>
+            <div style="margin-bottom:4px;"><strong>Sıra Sizde 1:</strong> Yazılım veya donanım hataları → veri kaybı. Önlem = <strong>yedekleme</strong>. Yedeklemenin önemi kayıptan sonra daha iyi anlaşılır.</div>
+            <div style="margin-bottom:4px;"><strong>Sıra Sizde 2:</strong> Windows üzerinden silinen kullanıcı SQL Server'da sahipsiz kalır. Aynı isimle yeni kullanıcı oluşturulsa bile Windows SID farklı olacağından SQL Server'a ulaşım olmaz.</div>
+            <div style="margin-bottom:4px;"><strong>Sıra Sizde 3:</strong> SQL hesabını silince tüm ayarlar kaybolur. Hesabı silmek yerine <strong>devre dışı bırakmak</strong> daha iyi: tekrar erişim gerektiğinde aktiflemek yeterlidir.</div>
+            <div><strong>Sıra Sizde 4:</strong> Tüm yetkiler tek seferde → GRANT ALL ON Urunler TO Ali</div>
+          </div>
         </div>
       </div>
     </div>
@@ -643,6 +784,27 @@ table.info-table td{padding:5px 8px;border:1px solid var(--border);color:var(--t
           </ul>
           <div class="sinav-notu">Yedekler veritabanı ile aynı sistemde tutulmamalı. Senaryo test edilmeli. En az yılda 2 kez geri yükleme testi. Küçük uygulamalarda basit kopyalama ile yedekleme yeterli olabilir.</div>
         </div>
+        <div class="topic-card" style="border-color:var(--accent);">
+          <div class="topic-title">Yedekleme Senaryosu — İhtiyaç Tespiti Kriterleri</div>
+          <ul class="topic-items">
+            <li><strong>Veritabanının önemi:</strong> İstatistik/test amaçlı basit kopyalar mı, kritik üretim verisi mi?</li>
+            <li><strong>Veri değişimi yoğunluğu:</strong> Az kullanıcılı/az güncelleme mi? 7/24 yoğun işlem mi?</li>
+            <li><strong>Maksimum veri kaybı toleransı:</strong> Kaç saatlik/dakikalık veri kaybına tahammül edilebilir?</li>
+            <li><strong>Ortam riskleri:</strong> PC diski mi? RAID'li endüstriyel disk mi? (risk çok farklı)</li>
+            <li><strong>Güvenlik ihtiyacı:</strong> Yedekler şifrelenmiş/güvenli saklanmalı — şifresiz yedek tüm veriye erişim imkânı verir</li>
+            <li><strong>Maksimum geri dönme süresi:</strong> Dakikalar içinde mi? Günler içinde mi? (geri yükleme süresi hesaplanmalı)</li>
+            <li><strong>İmkânlar:</strong> Disk alanı, bant genişliği, uzak konum. 50GB yedeğin kopyalanması: LAN=30dk, 4Mbit internet=28 saat!</li>
+          </ul>
+          <div style="overflow-x:auto;margin:8px 0;">
+            <table class="info-table">
+              <tr><th>Örnek</th><th>Senaryo</th><th>Çözüm</th></tr>
+              <tr><td>Küçük İşletme</td><td>500MB DB, günde 20 kayıt, haftalık veri kaybı kabul edilebilir</td><td>Günde 1 tam yedek, rotasyon 1 hafta, bulut (Dropbox/OneDrive) ile senkronize</td></tr>
+              <tr><td>Küçük Üretim</td><td>1GB DB, günde 1.000 kayıt, 30 dakika veri kaybı toleransı</td><td>Günde 1 tam (23:00), günde 3 fark (11:30/15:30/18:30), her 30 dk hareket günlük yedek; uzak ofise kopyalama; 3 ay rotasyon</td></tr>
+              <tr><td>Büyük Üretim</td><td>50GB DB, 3 vardiya, veri kaybı YOK; üretim durması = büyük zarar</td><td>İkizleme (otomatik geçiş) + bulut replikasyon + günlük arşiv tam yedek</td></tr>
+            </table>
+          </div>
+          <div class="sinav-notu">Yedek senaryosu test edilmeli — geri yüklenemeyen yedek işe yaramaz! Yılda en az 2 kez test. 50GB yedeği internet üzerinden kopyalamak 20 saate kadar sürebilir → acil durumlar için yerel kopya da tutun. Yedek dosyaları şifrelenmeli.</div>
+        </div>
         <div class="topic-card" style="border-color:var(--amber);">
           <div class="topic-title">Replikasyon ve İkizleme <span class="badge badge-amber">Sınavda Çıkar</span></div>
           <ul class="topic-items">
@@ -694,6 +856,45 @@ table.info-table td{padding:5px 8px;border:1px solid var(--border);color:var(--t
             <li>Bakım planında <strong>OLMAYAN</strong> görevler: Kullanıcı yetkilendirme politikaları, güvenlik açıkları denetleme.</li>
           </ul>
           <div class="sinav-notu">Bakım planında OLMAYAN → "Kullanıcı yetkilendirme politikaları" (2024-25: D) ve "Güvenlik açıkları denetleme" (2023-24: C). DBCC CHECKDB → tutarlılık (2023-24: D). Shrink → indeks yenilemeden ÖNCE. Parçalanma → indeks yenileme ile çözülür.</div>
+        </div>
+
+        <!-- Unite 7 Parçalanma detayı -->
+        <div class="topic-card" style="border-color:var(--amber);">
+          <div class="topic-title">Parçalanma (Fragmentation) — Detaylı Açıklama</div>
+          <ul class="topic-items">
+            <li><strong>Veri bloklarının içsel parçalanması:</strong> Veri değiştikçe (DELETE, satır boyu değiştiren UPDATE) kayıtların bloklar içindeki sırası bozulur. Veritabanı daha fazla blok yüklemek zorunda kalır → disk okuma süresi artar, bellek tüketimi artar.</li>
+            <li><strong>Veri dosyasının içsel parçalanması:</strong> Büyüyen tablolar yeni boş bloklara yerleşir; blokların disk üzerindeki sırası bozulur. Disk kafaları uzak konumlara gitmek zorunda kalır → performans ciddi düşer.</li>
+            <li><strong>Çözüm:</strong> Kümelenmiş indeks oluşturma ve/veya Rebuild Index Task ile kümelenmiş indeksin yeniden yapılandırılması → tablonun baştan oluşturulması sağlanır.</li>
+            <li><strong>Shrink (Sıkıştırma):</strong> Blokların içlerindeki boşluklar düzenlenir ve boş bloklar dosya sonuna taşınır. Ancak indeks bozulmasına yol açabileceğinden İndeks Yenileme görevinden ÖNCE yapılmalıdır.</li>
+          </ul>
+          <div class="sinav-notu">Parçalanma = veri/indeks bloklarının sırasının bozulması → performans düşer. Çözüm: Rebuild Index Task (İndeks Yenileme). Shrink → indeks yenilemeden ÖNCE. Parçalanma nedenleri: silme, ekleme, güncelleme işlemleri.</div>
+        </div>
+
+        <!-- Ünite 7 Kendimizi Sınayalım -->
+        <div class="topic-card" style="border-color:var(--green);">
+          <div class="topic-title">Kendimizi Sınayalım — Ünite 7 Yanıt Anahtarı</div>
+          <div style="overflow-x:auto;margin:8px 0;">
+            <table class="info-table">
+              <tr><th>Soru</th><th>Cevap</th><th>Konu</th></tr>
+              <tr><td>1</td><td style="color:var(--green);font-weight:700;">d — Performans artırma</td><td>Yedek alma nedeni DEĞİL → Performansın arttırılması</td></tr>
+              <tr><td>2</td><td style="color:var(--green);font-weight:700;">c — Model veritabanı</td><td>İşlev dışı kalsa SQL Server çalışmaya devam eder → Model</td></tr>
+              <tr><td>3</td><td style="color:var(--green);font-weight:700;">c — Tempdb veritabanı</td><td>Her SQL Server başlatıldığında yeniden oluşturulur → Tempdb</td></tr>
+              <tr><td>4</td><td style="color:var(--green);font-weight:700;">d — Fark yedeği tek başına</td><td>Fark yedeği tek başına geri yüklemede kullanılamaz — tam yedek gerekir</td></tr>
+              <tr><td>5</td><td style="color:var(--green);font-weight:700;">e — Verinin kendisi değil</td><td>Hareket günlük yedeği: veriyi değil, yapılan değişiklik işlemlerini barındırır</td></tr>
+              <tr><td>6</td><td style="color:var(--green);font-weight:700;">b — Veritabanı dışına çıkart</td><td>Yedeklemenin temel prensibi: yedekler veritabanı sunucusunun dışına çıkartılmalıdır</td></tr>
+              <tr><td>7</td><td style="color:var(--green);font-weight:700;">c — Orijinalden direkt kopyalama</td><td>Test ortamı için orijinal veriyi direkt kopyalamak yanlış → anlamsızlaştırma gerekir</td></tr>
+              <tr><td>8</td><td style="color:var(--green);font-weight:700;">d — Otomatik geçiş</td><td>Ana DB çöktüğünde kopya DB'ye otomatik geçiş → Replikasyon'da OLMAZ (manual gerekir)</td></tr>
+              <tr><td>9</td><td style="color:var(--green);font-weight:700;">a — Parçalanan indeksi düzenlemek</td><td>Veritabanı bakım amacı = Parçalanan indeks yapısını düzenlemek (Rebuild Index)</td></tr>
+              <tr><td>10</td><td style="color:var(--green);font-weight:700;">c — İşlemci sayısı</td><td>Geri yükleme açısından önemsiz → Veritabanını çalıştıran sistemin işlemci sayısı</td></tr>
+            </table>
+          </div>
+          <div style="background:rgba(62,207,142,0.05);border:1px solid rgba(62,207,142,0.2);border-radius:var(--radius-sm);padding:12px 16px;margin-top:8px;font-size:12px;color:var(--text2);">
+            <div style="font-weight:700;color:var(--green);margin-bottom:6px;">Sıra Sizde Yanıtları — Ünite 7</div>
+            <div style="margin-bottom:4px;"><strong>Sıra Sizde 1 (Tempdb neden?):</strong> Veritabanı boyutu sistem belleğinden büyüktür. Sıralama, geçici tablo oluşturma vb. büyük miktarda veri için bellek yetersiz kalır. SQL Server bu nedenlerle disk tabanlı Tempdb'yi kullanır.</div>
+            <div style="margin-bottom:4px;"><strong>Sıra Sizde 2 (Replikasyon vs İkizleme maliyet):</strong> İkizleme daha maliyetlidir. İkizlemede her harekette "tamamlandı" bilgisi kopyaya iletilmeden döndürülmez — bazı yapılandırmalarda kopyanın "aldım ve uyguladım" dönüşü beklenir. Replikasyon eş zamanlı olmadığından daha az yük getirir.</div>
+            <div style="margin-bottom:4px;"><strong>Sıra Sizde 3 (Yedek şifreleme neden?):</strong> Yedekler normal yapılandırmada bulundukları alana erişebilen herkesin kopyalayabileceği dosyalardır. Şifrelenmeyen yedek ele geçirilirse tüm veriye erişilebilir. MS SQL Server yedekleri şifrelemeye ve sadece alan sunucu tarafından geri açılmasına imkân tanır.</div>
+            <div><strong>Sıra Sizde 4 (Felaket örnekleri):</strong> Sunucu/disk arızası, veriye erişim sağlayan ağ altyapısının çökmesi, kullanılan verinin silinmesi, DB dosyalarının bozulması, veri illegal değiştirilmesi, tabii afetler (deprem, yangın, su baskını).</div>
+          </div>
         </div>
       </div>
     </div>
@@ -812,6 +1013,26 @@ table.info-table td{padding:5px 8px;border:1px solid var(--border);color:var(--t
           </ul>
           <div class="sinav-notu">BigQuery bileşeni DEĞİL → REST API (2024-25: B soru). Sunucu Yönetim Paneli bileşen değil (2024-25: E). En üst → Projeler (2023-24: E). Sayfalar bileşen DEĞİL (2022: A). Dremel = BigQuery motoru.</div>
         </div>
+        <div class="topic-card" style="border-color:var(--accent);">
+          <div class="topic-title">Google BigQuery — Örnek Sorgular ve Örnek Tablolar</div>
+          <ul class="topic-items">
+            <li><strong>publicdata:samples veri bloğundaki 7 örnek tablo:</strong></li>
+            <li>gsod → 1929-2010 hava verisi; 16 GB, 114.420.316 satır (NOAA, ABD)</li>
+            <li>natality → 1969-2008 ABD doğum verileri; 21.9 GB, 137.826.763 satır</li>
+            <li>wikipedia → 2010'a kadar Wikipedia tüm revizyonlar; 35.7 GB, 313.797.035 satır</li>
+            <li>trigrams → 1520-2008 yayınlarındaki üçlü kelime öbekleri; 258 GB, 68.051.509 satır</li>
+            <li>github_nested → GitHub proje iç içe şema; 1.58 GB, 2.541.639 satır</li>
+            <li>github_timeline → GitHub proje düz şema; 3.54 GB, 6.219.749 satır</li>
+            <li>shakespeare → Shakespeare eserlerinde sözcük dizini; 6.13 MB, 164.656 satır</li>
+          </ul>
+          <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px 16px;margin:8px 0;font-family:var(--mono);font-size:11px;color:var(--teal);line-height:1.7;">-- Örnek sorgu: 116790 nolu istasyon, 1989 sonrası<br>SELECT year, month, day, mean_temp<br>FROM [publicdata:samples.gsod]<br>WHERE station_number=116790<br>AND year > 1989<br>ORDER BY year, month, day<br>-- Sonuç: 4.26 GB analiz → 2.2 saniyede 7405 satır<br><br>-- Sıra Sizde 2: 1990 ocak min/max/ortalama<br>SELECT AVG(mean_temp) as Ortalama,<br>&nbsp;&nbsp;&nbsp;&nbsp;MIN(mean_temp) as Minimum,<br>&nbsp;&nbsp;&nbsp;&nbsp;MAX(mean_temp) as Maximum<br>FROM [publicdata:samples.gsod]<br>WHERE station_number=116790<br>AND year=1990 AND month=1</div>
+          <div class="sinav-notu">BigQuery standart SQL kullanır. Web arayüzü, komut satırı veya REST API ile erişim. Dremel altyapısı MapReduce'den daha hızlı. Veri indirme: Download as CSV → Excel'e Veri → Metinden sihirbazı ile aktarma.</div>
+        </div>
+        <div class="topic-card" style="border-color:var(--purple);">
+          <div class="topic-title">MongoDB — Belge Ekleme Örnek Kodu</div>
+          <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px 16px;margin:8px 0;font-family:var(--mono);font-size:11px;color:var(--teal);line-height:1.7;">&gt;db.post.insert([<br>{<br>&nbsp;Baslik: 'MongoDB Kaydı',<br>&nbsp;Tanim: 'MongoDB bir NoSQL veritabanıdır',<br>&nbsp;Kaydeden: 'Uğur GÜREL',<br>&nbsp;Anahtar_Kelime: ['mongodb', 'database', 'NoSQL'],<br>&nbsp;OkunmaSayisi: 100<br>},<br>{<br>&nbsp;Baslik: 'NoSQL Veritabanı',<br>&nbsp;Tanim: 'NoSQL Geleceğin Teknolojisidir',<br>&nbsp;Kaydeden: 'Tuna GÜREL',<br>&nbsp;Anahtar_Kelime: ['mongodb', 'database', 'NoSQL'],<br>&nbsp;OkunmaSayisi: 20,<br>&nbsp;Yorum: [{<br>&nbsp;&nbsp;Kisi: 'internet',<br>&nbsp;&nbsp;YorumIcerik: 'Çok yararlı bir yayın',<br>&nbsp;&nbsp;Tarih: new Date(2015,11,2,2,35),<br>&nbsp;&nbsp;Begeni: 0<br>&nbsp;}]<br>}<br>])</div>
+          <div class="sinav-notu">MongoDB: db.koleksiyon.insert([{...}, {...}]) ile belge eklenir. JSON/BSON formatında. İç içe belgeler (yorum alanı) kolaylıkla tutulabilir. Koleksiyon = tablo, Belge = satır/kayıt. Esnek şema — her belgede farklı alanlar olabilir.</div>
+        </div>
         <div class="topic-card" style="border-color:var(--red);">
           <div class="topic-title">Veritabanı Kümeleme ve Felaket Çözümleri</div>
           <ul class="topic-items">
@@ -822,6 +1043,32 @@ table.info-table td{padding:5px 8px;border:1px solid var(--border);color:var(--t
             <li><strong>Depolama Tabanlı:</strong> Veri depolama hizmeti veren merkezde veri kopyası tutulur</li>
           </ul>
           <div class="sinav-notu">Bağımsız sunucular tek sistem = VERİTABANI KÜMELEMESİ. 2022: E (Veritabanı kümeleme). Yük dengeleme + yüksek erişilebilirlik. İkizleme = veri kopyalama, kümeleme = sunucu işbirliği.</div>
+        </div>
+
+        <!-- Ünite 8 Kendimizi Sınayalım -->
+        <div class="topic-card" style="border-color:var(--green);">
+          <div class="topic-title">Kendimizi Sınayalım — Ünite 8 Yanıt Anahtarı</div>
+          <div style="overflow-x:auto;margin:8px 0;">
+            <table class="info-table">
+              <tr><th>Soru</th><th>Cevap</th><th>Konu</th></tr>
+              <tr><td>1</td><td style="color:var(--green);font-weight:700;">b — REST API</td><td>BigQuery bileşeni DEĞİL → REST API (erişim yöntemi)</td></tr>
+              <tr><td>2</td><td style="color:var(--green);font-weight:700;">c — Büyük veri sorgusu</td><td>NoSQL kullanmak için en geçerli sebep = büyük veri üzerinde sorgu</td></tr>
+              <tr><td>3</td><td style="color:var(--green);font-weight:700;">a — Çizge tabanlı</td><td>Birbirleriyle sıkı ilişkili büyük veri → Çizge tabanlı NoSQL</td></tr>
+              <tr><td>4</td><td style="color:var(--green);font-weight:700;">e — Index</td><td>Cassandra veri modelinde OLMAYAN → Index (Sütun ailesi, Anahtar, Anahtar alanı, Sütun, Küme var)</td></tr>
+              <tr><td>5</td><td style="color:var(--green);font-weight:700;">d — Tablolar arası ilişki</td><td>NoSQL özelliği DEĞİL → Tablolar arası ilişkiler belli alanlar üzerinden kurulması (ilişkisel DB özelliği)</td></tr>
+              <tr><td>6</td><td style="color:var(--green);font-weight:700;">a — MySQL</td><td>NoSQL örneği DEĞİL → MySQL (ilişkisel veritabanı)</td></tr>
+              <tr><td>7</td><td style="color:var(--green);font-weight:700;">e — Yakında unutulacak</td><td>Yanlış → Bulut bilişim yakın gelecekte unutulacak bir teknoloji DEĞİL</td></tr>
+              <tr><td>8</td><td style="color:var(--green);font-weight:700;">b — Hizmet olarak altyapı</td><td>Bulut dağıtım modeli DEĞİL → Hizmet olarak altyapı (IaaS) bir hizmet modelidir)</td></tr>
+              <tr><td>9</td><td style="color:var(--green);font-weight:700;">c — Hizmet olarak altyapı (IaaS)</td><td>Amazon Web Services = IaaS (Hizmet olarak altyapı)</td></tr>
+              <tr><td>10</td><td style="color:var(--green);font-weight:700;">d — İnternet</td><td>Bulut bilişimdeki "bulut" kelimesi = internet ortamı</td></tr>
+            </table>
+          </div>
+          <div style="background:rgba(62,207,142,0.05);border:1px solid rgba(62,207,142,0.2);border-radius:var(--radius-sm);padding:12px 16px;margin-top:8px;font-size:12px;color:var(--text2);">
+            <div style="font-weight:700;color:var(--green);margin-bottom:6px;">Sıra Sizde Yanıtları — Ünite 8</div>
+            <div style="margin-bottom:4px;"><strong>Sıra Sizde 1 (MongoDB öğrenci kaydı):</strong> db.ogrenci.insert([{OgrenciAd:'Ahmet', OgrenciSoyad:'Kocaman', OgrenciSinif:'1.Sınıf', Yorum:[{Kaydeden:'Uğur GÜREL', YorumIcerik:'Çok başarılı'}]}, {OgrenciAd:'Ayşe', OgrenciSoyad:'Güzelyurt', OgrenciSinif:'1.Sınıf', Yorum:[{YorumIcerik:'Müzik konusunda çok yetenekli'}]}])</div>
+            <div style="margin-bottom:4px;"><strong>Sıra Sizde 2 (BigQuery sorgu):</strong> SELECT AVG(mean_temp) as Ortalama, MIN(mean_temp) as Minimum, MAX(mean_temp) as Maximum FROM [publicdata:samples.gsod] WHERE station_number=116790 AND year=1990 AND month=1</div>
+            <div><strong>CAP Teoremi özeti:</strong> Consistency (Tutarlılık) + Availability (Ulaşılabilirlik) + Partition Tolerance (Bölünebilme Toleransı) — dağıtık sistemlerde aynı anda 3'ü sağlanamaz, en fazla 2'si bir arada bulunabilir. (Eric Brewer, 1998)</div>
+          </div>
         </div>
       </div>
     </div>
